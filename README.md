@@ -1,5 +1,8 @@
 # Reklam Kütüphanesi Paneli
 
+**Canlı panel:** <https://kaandoganay55.github.io/reklam/>
+
+
 Meta Ad Library API'sinden (`ads_archive`) Türkiye'deki **siyasi ve sosyal konulu
 reklamları** çekip kimin ne yayınladığını, ne kadar harcadığını takip eden panel.
 
