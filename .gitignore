@@ -1,0 +1,9 @@
+.env
+ads.db
+ads.db-journal
+veri.json
+gorseller/
+*.log
+__pycache__/
+*.pyc
+.DS_Store

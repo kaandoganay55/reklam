@@ -1,0 +1,148 @@
+{
+  "countries": [
+    "TR"
+  ],
+  "date_min": null,
+  "_pages_aciklama": "Takip edilecek Facebook sayfaları. page_id'yi facebook.com/ads/library adresinde sayfayı aratıp URL'deki view_all_page_id= değerinden ya da panelin 'Sayfa Keşfi' sekmesinden alabilirsin.",
+  "pages": [
+    {
+      "page_id": "2222003764721494",
+      "label": "Halit Doğan"
+    },
+    {
+      "page_id": "194104180444744",
+      "label": "Cevat Öncü"
+    },
+    {
+      "page_id": "129885233341922",
+      "label": "İmren Nilay Tüfekci"
+    },
+    {
+      "page_id": "195427533651754",
+      "label": "İhsan Kurnaz"
+    },
+    {
+      "page_id": "101949464550960",
+      "label": "Serhat Türkel"
+    },
+    {
+      "page_id": "603611110059793",
+      "label": "İbrahim Sandıkçı"
+    },
+    {
+      "page_id": "110254532047910",
+      "label": "Mustafa Candal "
+    },
+    {
+      "page_id": "128342837340876",
+      "label": "Hüseyin Dündar"
+    },
+    {
+      "page_id": "246516569427943",
+      "label": "Hamit Kılıç"
+    },
+    {
+      "page_id": "1405266096372341",
+      "label": "Şenol Kul"
+    },
+    {
+      "page_id": "232241223300343",
+      "label": "Ramazan Özdemir"
+    },
+    {
+      "page_id": "255596194294855",
+      "label": "Av. Murat Gül"
+    },
+    {
+      "page_id": "165901686597917",
+      "label": "Özlem Maraş"
+    },
+    {
+      "page_id": "2019693468335102",
+      "label": "Ender Gür"
+    },
+    {
+      "page_id": "1059445487415703",
+      "label": "Erhan Usta"
+    },
+    {
+      "page_id": "226477433890988",
+      "label": "Şerif Ün"
+    },
+    {
+      "page_id": "718989924620935",
+      "label": "Osman Topaloğlu"
+    },
+    {
+      "page_id": "111602122023737",
+      "label": "Adnan Topal"
+    },
+    {
+      "page_id": "251025954754976",
+      "label": "Murat İkiz"
+    },
+    {
+      "page_id": "299838226535693",
+      "label": "Şerafettin Aydoğdu"
+    },
+    {
+      "page_id": "734705046387544",
+      "label": "Şerif Kılağuz"
+    },
+    {
+      "page_id": "264231020096886",
+      "label": "Refahittin Şencan"
+    },
+    {
+      "page_id": "409987128856221",
+      "label": "Refaettin Karaca"
+    }
+  ],
+  "_keywords_aciklama": "Sayfa keşfi için reklam metninde aranacak kelimeler. collector.py --discover bunları kullanır.",
+  "keywords": [
+    "Samsun",
+    "Atakum",
+    "belediye",
+    "başkan"
+  ],
+  "_kisiler_aciklama": "Kişi bazlı rakip takibi. collector.py --kisi bu isimleri tam ifade olarak arar; rapor.py 'kendi kampanyası' ile 'adı geçen' reklamları ayırır.",
+  "kisiler": [
+    "Halit Doğan",
+    "Cevat Öncü",
+    "İmren Nilay Tüfekçi",
+    "İhsan Kurnaz",
+    "Serhat Türkel",
+    "İbrahim Sandıkçı",
+    "Mustafa Candal",
+    "Hüseyin Dündar",
+    "Hamit Kılıç",
+    "Şenol Kul",
+    "Ramazan Özdemir",
+    "Şerafettin Aydoğdu",
+    "Osman Topaloğlu",
+    "Murat Gül",
+    "Murat İkiz",
+    "Şerif Ün",
+    "Adnan Topal",
+    "Şerif Kılağuz",
+    "Refahittin Şencan",
+    "Refaettin Karaca",
+    "Erhan Usta",
+    "Özlem Maraş",
+    "Ender Gür"
+  ],
+  "_kurumlar_aciklama": "Parti/kurum aramaları. Kişi isimleri gibi tam ifade aranır; collector.py --kisi bunları da kapsar.",
+  "kurumlar": [
+    "CHP Samsun",
+    "MHP Samsun",
+    "İYİ Parti Samsun",
+    "AK Parti Samsun",
+    "Yeniden Refah Samsun",
+    "Samsun milletvekili"
+  ],
+  "_haric_aciklama": "İsim çakışmalarında elenecek sayfalar. Tam sayfa adı yazılır; kişi araması aynı ismi taşıyan başka sayfaları da getirdiğinde kullanılır.",
+  "haric_sayfalar": [
+    "Murat Gül",
+    "Murat Gül Soğuksu Mahalle Muhtar Adayı"
+  ]
+}
