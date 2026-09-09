@@ -633,69 +633,73 @@ function tiles(rows){
 }
 
 /* ---- çizgi grafik ---- */
-/* Telefonda zaman serisi grafiği çalışmıyor: 14 kişi, dar ekran, imleç yok.
-   Onun yerine kişi başına bir satır — ismi yazılı, kendi aktivite şeridi var,
-   yükseklikler ortak ölçekte olduğu için satırlar birbiriyle kıyaslanabilir. */
+/* Telefonda zaman serisi grafiği okunmuyor. Kişi başına bir satır çiziyoruz.
+   ÖNEMLİ: her satır KENDİ zirvesine göre ölçekleniyor. Ortak ölçek denendi ve
+   olmadı — en yoğun sayfa diğerlerini eziyor, hepsi 1-2 piksellik noktaya
+   dönüyordu. Satırın işi "bu sayfa ne zaman yayındaydı"yı göstermek;
+   büyüklük karşılaştırması zaten sağdaki rakamlarda ve alttaki çubuklarda. */
 function kisiSeritleri(rows, secili){
   const c = P();
   if (grafikler["#c-line"]) { grafikler["#c-line"].destroy(); delete grafikler["#c-line"]; }
 
-  const KOVA = 44;
+  const KOVA = 30;
   const gun = Math.max(1, gunFark(state.bas, state.son));
   const sinir = [];
   for (let i = 0; i <= KOVA; i++) sinir.push(gunEkle(state.bas, Math.round(gun * i / KOVA)));
 
-  // Her kişi için kova kova "o aralıkta yayında olan reklam" sayısı
   const satirlar = [...state.secili].map(i => {
     const alt = rows.filter(r => r.s === i);
     const seri = [];
     for (let k = 0; k < KOVA; k++)
       seri.push(alt.filter(r => r.b <= sinir[k+1] && bitis(r) >= sinir[k]).length);
+    const zirve = Math.max(0, ...seri);
     return {
-      i, ad: D.sayfalar[i], seri,
+      i, ad: D.sayfalar[i], seri, zirve,
       reklam: alt.length,
       harcama: alt.reduce((s,r) => s + orta(r.hl, r.hu), 0),
-      zirve: Math.max(0, ...seri),
+      zirveAy: zirve ? sinir[seri.indexOf(zirve)] : null,
     };
-  }).filter(s => s.reklam > 0).sort((a,b) => b.reklam - a.reklam);
-
-  const enYuksek = Math.max(1, ...satirlar.map(s => s.zirve));
+  }).filter(s => s.reklam > 0).sort((a,b) => b.harcama - a.harcama);
 
   document.getElementById("cizgiNot").textContent = satirlar.length
-    ? "Her satır bir sayfa · şerit, o tarihte yayında olan reklam sayısı · " +
-      "yükseklikler ortak ölçekte, satırlar kıyaslanabilir."
+    ? "Her satır bir sayfa, kendi ölçeğinde: dolu blok o dönemde yayında reklamı " +
+      "olduğunu, blok yüksekliği o sayfanın kendi yoğunluğunu gösterir. Sağdaki " +
+      "rakamlar sayfalar arası karşılaştırma içindir."
     : "Bu aralıkta reklam yok.";
 
   const serit = s => {
-    const G = 4, A = 1.5, Y = 24;          // bar genişliği, aralık, yükseklik
-    const W = KOVA * (G + A);
+    const G = 8, A = 2, Y = 30, W = KOVA * (G + A);
     const cubuklar = s.seri.map((v,k) => {
-      const yuk = v ? Math.max(2, v / enYuksek * Y) : 0;
-      if (!yuk) return "";
+      if (!v) return "";
+      const yuk = Math.max(4, v / s.zirve * Y);      // KENDİ zirvesine göre
       return '<rect x="' + (k*(G+A)) + '" y="' + (Y-yuk).toFixed(1) +
              '" width="' + G + '" height="' + yuk.toFixed(1) +
-             '" rx="1.2" fill="' + renk(s.i) + '"/>';
+             '" rx="2" fill="' + renk(s.i) + '"/>';
     }).join("");
-    // Zemin bandı: çubuklar kısa olsa da satırın bir grafik alanı olduğu belli olsun
     return '<svg viewBox="0 0 ' + W + ' ' + Y + '" preserveAspectRatio="none" ' +
-           'class="w-full h-[24px] block rounded-sm" aria-hidden="true" ' +
-           'style="background:' + c.sunken + '">' +
-           '<rect x="0" y="' + (Y-1) + '" width="' + W + '" height="1" fill="' + c.rule + '"/>' +
-           cubuklar + '</svg>';
+           'class="w-full h-[30px] block rounded" aria-hidden="true" ' +
+           'style="background:' + c.sunken + '">' + cubuklar + '</svg>';
   };
+
+  const kisaTarih = t => { const x = new Date(t);
+    return AY[x.getMonth()] + " " + String(x.getFullYear()).slice(2); };
 
   document.getElementById("c-line").innerHTML =
     '<div class="flex flex-col">' + satirlar.map(s =>
-      '<div class="py-2 border-b border-rule dark:border-ruled last:border-b-0">' +
-        '<div class="flex items-baseline justify-between gap-2 mb-1">' +
+      '<div class="py-2.5 border-b border-rule dark:border-ruled last:border-b-0">' +
+        '<div class="flex items-baseline justify-between gap-2 mb-1.5">' +
           '<span class="flex items-center gap-1.5 min-w-0">' +
             '<i class="block w-2.5 h-2.5 rounded-full shrink-0" style="background:' + renk(s.i) + '"></i>' +
             '<span class="truncate text-[13px] font-medium">' + s.ad + '</span></span>' +
           '<span class="font-mono text-[10.5px] tabnum text-muted dark:text-mutedd shrink-0">' +
-            fmt(s.reklam) + ' reklam · ' + kisa(s.harcama) + ' ₺</span></div>' +
+            fmt(s.reklam) + ' · ' + kisa(s.harcama) + ' ₺</span></div>' +
         serit(s) +
+        '<div class="flex justify-between font-mono text-[10px] text-faint dark:text-faintd mt-1">' +
+          '<span>en yoğun: ' + (s.zirveAy ? kisaTarih(s.zirveAy) : "—") +
+            ' · ' + s.zirve + ' reklam</span></div>' +
       '</div>').join("") + '</div>' +
-    '<div class="flex justify-between font-mono text-[10px] text-faint dark:text-faintd pt-2">' +
+    '<div class="flex justify-between font-mono text-[10px] text-faint dark:text-faintd pt-2 ' +
+      'border-t border-rule dark:border-ruled mt-1">' +
       '<span>' + uzun(state.bas) + '</span><span>' + uzun(state.son) + '</span></div>';
 }
 
