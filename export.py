@@ -80,6 +80,16 @@ def build(db_path: str, gun: int = 0, sadece_kisiler: bool = False,
               .sort_values(ascending=False).head(sayfa_sayisi).index.tolist())
     df = df[df["sayfa"].isin(sira)]
 
+    # Sayfa kategorileri (baskan / aday / vekil / kurum) config.json'dan gelir
+    with open(os.path.join(HERE, "config.json"), encoding="utf-8") as fh:
+        _cfg = json.load(fh)
+    _kat = {}
+    for x in _cfg.get("pages", []):
+        _kat[str(x["page_id"])] = x.get("kategori", "belirsiz")
+    ad_kat = {}
+    for _, r in df.iterrows():
+        ad_kat.setdefault(r["sayfa"], _kat.get(str(r["page_id"]), "belirsiz"))
+
     sayfa_idx = {ad: i for i, ad in enumerate(sira)}
     reklamlar = []
     gorselli = 0
@@ -109,6 +119,7 @@ def build(db_path: str, gun: int = 0, sadece_kisiler: bool = False,
     return {
         "gorselli": gorselli,
         "sayfalar": sira,
+        "kategoriler": [ad_kat.get(a, "belirsiz") for a in sira],
         "reklamlar": reklamlar,
         "ilk": df["bas"].min().strftime("%Y-%m-%d"),
         "son": df["bas"].max().strftime("%Y-%m-%d"),
