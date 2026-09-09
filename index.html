@@ -286,7 +286,7 @@ tailwind.config = {
     <div><h3 class="notehead"><i data-lucide="globe" class="w-3 h-3"></i>Kapsam</h3><p class="notebody">Türkiye AB dışında olduğu için API yalnızca siyasi ve sosyal konulu reklamları döndürür — 7 yıl geriye. Her tür reklam (<code class="ncode">ad_type=ALL</code>) sadece AB ve İngiltere'ye gösterilenler için açıktır.</p></div>
     <div><h3 class="notehead"><i data-lucide="ruler" class="w-3 h-3"></i>Rakamlar</h3><p class="notebody">Harcama ve gösterim kesin sayı değil aralıktır (<code class="ncode">lower_bound</code>–<code class="ncode">upper_bound</code>). Üst sınır açık uçlu kovalarda hiç gelmez; panel o durumda alt sınıra düşer.</p></div>
     <div><h3 class="notehead"><i data-lucide="shield-alert" class="w-3 h-3"></i>Beyan şartı</h3><p class="notebody">Bir reklamın kütüphanede görünmesi için reklamverenin onu siyasi olarak beyan etmiş olması gerekir. Beyansız yayınlanan reklam, yakalanana kadar buraya düşmez.</p></div>
-    <div><h3 class="notehead"><i data-lucide="info" class="w-3 h-3"></i>Bu sayfa</h3><p class="notebody" id="kaynaknot"></p><p class="notebody mt-1 font-mono text-[11px] text-faint dark:text-faintd">Panel sürümü: 09.09.2026 14:49</p></div>
+    <div><h3 class="notehead"><i data-lucide="info" class="w-3 h-3"></i>Bu sayfa</h3><p class="notebody" id="kaynaknot"></p><p class="notebody mt-1 font-mono text-[11px] text-faint dark:text-faintd">Panel sürümü: 09.09.2026 14:50</p></div>
   </footer>
 </div>
 </div>
@@ -681,9 +681,6 @@ function kisiSeritleri(rows, secili){
            'style="background:' + c.sunken + '">' + cubuklar + '</svg>';
   };
 
-  const kisaTarih = t => { const x = new Date(t);
-    return AY[x.getMonth()] + " " + String(x.getFullYear()).slice(2); };
-
   document.getElementById("c-line").innerHTML =
     '<div class="flex flex-col">' + satirlar.map(s =>
       '<div class="py-2.5 border-b border-rule dark:border-ruled last:border-b-0">' +
@@ -691,12 +688,9 @@ function kisiSeritleri(rows, secili){
           '<span class="flex items-center gap-1.5 min-w-0">' +
             '<i class="block w-2.5 h-2.5 rounded-full shrink-0" style="background:' + renk(s.i) + '"></i>' +
             '<span class="truncate text-[13px] font-medium">' + s.ad + '</span></span>' +
-          '<span class="font-mono text-[10.5px] tabnum text-muted dark:text-mutedd shrink-0">' +
-            fmt(s.reklam) + ' · ' + kisa(s.harcama) + ' ₺</span></div>' +
+          '<span class="font-mono text-[11px] tabnum text-muted dark:text-mutedd shrink-0">' +
+            fmt(s.reklam) + ' reklam</span></div>' +
         serit(s) +
-        '<div class="flex justify-between font-mono text-[10px] text-faint dark:text-faintd mt-1">' +
-          '<span>en yoğun: ' + (s.zirveAy ? kisaTarih(s.zirveAy) : "—") +
-            ' · ' + s.zirve + ' reklam</span></div>' +
       '</div>').join("") + '</div>' +
     '<div class="flex justify-between font-mono text-[10px] text-faint dark:text-faintd pt-2 ' +
       'border-t border-rule dark:border-ruled mt-1">' +

@@ -662,9 +662,6 @@ function kisiSeritleri(rows, secili){
            'style="background:' + c.sunken + '">' + cubuklar + '</svg>';
   };
 
-  const kisaTarih = t => { const x = new Date(t);
-    return AY[x.getMonth()] + " " + String(x.getFullYear()).slice(2); };
-
   document.getElementById("c-line").innerHTML =
     '<div class="flex flex-col">' + satirlar.map(s =>
       '<div class="py-2.5 border-b border-rule dark:border-ruled last:border-b-0">' +
@@ -672,12 +669,9 @@ function kisiSeritleri(rows, secili){
           '<span class="flex items-center gap-1.5 min-w-0">' +
             '<i class="block w-2.5 h-2.5 rounded-full shrink-0" style="background:' + renk(s.i) + '"></i>' +
             '<span class="truncate text-[13px] font-medium">' + s.ad + '</span></span>' +
-          '<span class="font-mono text-[10.5px] tabnum text-muted dark:text-mutedd shrink-0">' +
-            fmt(s.reklam) + ' · ' + kisa(s.harcama) + ' ₺</span></div>' +
+          '<span class="font-mono text-[11px] tabnum text-muted dark:text-mutedd shrink-0">' +
+            fmt(s.reklam) + ' reklam</span></div>' +
         serit(s) +
-        '<div class="flex justify-between font-mono text-[10px] text-faint dark:text-faintd mt-1">' +
-          '<span>en yoğun: ' + (s.zirveAy ? kisaTarih(s.zirveAy) : "—") +
-            ' · ' + s.zirve + ' reklam</span></div>' +
       '</div>').join("") + '</div>' +
     '<div class="flex justify-between font-mono text-[10px] text-faint dark:text-faintd pt-2 ' +
       'border-t border-rule dark:border-ruled mt-1">' +
