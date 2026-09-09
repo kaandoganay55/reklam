@@ -128,6 +128,54 @@
     {
       "page_id": "1489520574688277",
       "label": "Yeni Parti Atakum İlçe Başkanlığı"
+    },
+    {
+      "page_id": "1424394931135090",
+      "label": "AK Parti Samsun İl Başkanlığı"
+    },
+    {
+      "page_id": "736017360191611",
+      "label": "İYİ Parti Samsun İl Başkanlığı"
+    },
+    {
+      "page_id": "485097771676063",
+      "label": "MHP Samsun İl Başkanlığı"
+    },
+    {
+      "page_id": "195800306948278",
+      "label": "Saadet Partisi Samsun İl Başkanlığı"
+    },
+    {
+      "page_id": "100901992994052",
+      "label": "İyi Parti Samsun"
+    },
+    {
+      "page_id": "113754393412063",
+      "label": "MHP İlkadım İlçe Başkanlığı"
+    },
+    {
+      "page_id": "1045248718850395",
+      "label": "CHP Samsun İl Başkanlığı"
+    },
+    {
+      "page_id": "380881628432235",
+      "label": "Milli Gençlik Samsun"
+    },
+    {
+      "page_id": "547547865419841",
+      "label": "MHP Bafra İlçe Başkanlığı"
+    },
+    {
+      "page_id": "1127502147113685",
+      "label": "Büyük Birlik Partisi Samsun  İl Başkanlığı"
+    },
+    {
+      "page_id": "183187802337696",
+      "label": "CHP Samsun Milletvekili MURAT ÇAN"
+    },
+    {
+      "page_id": "2616087158407789",
+      "label": "Erdal Avcı Büyük Birlik Partisi Samsun Milletvekili Adayi"
     }
   ],
   "_keywords_aciklama": "Sayfa keşfi için reklam metninde aranacak kelimeler. collector.py --discover bunları kullanır.",
