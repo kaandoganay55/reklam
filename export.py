@@ -116,8 +116,18 @@ def build(db_path: str, gun: int = 0, sadece_kisiler: bool = False,
                 gorselli += 1
         reklamlar.append(kayit)
 
+    # Takipte olup arşivde hiç reklamı olmayan sayfalar: panelde isimleri
+    # görünsün ki "takip ediliyor ama reklam vermemiş" ile "listede yok" ayrışsın.
+    reklamli = set(df["page_id"].astype(str))
+    bos = [{"ad": x.get("label") or x["page_id"], "kategori": x.get("kategori", "belirsiz")}
+           for x in _cfg.get("pages", [])
+           if str(x["page_id"]) not in reklamli
+           and (x.get("label") or "") not in haric_liste()]
+    bos.sort(key=lambda x: (x["kategori"], x["ad"]))
+
     return {
         "gorselli": gorselli,
+        "bos": bos,
         "sayfalar": sira,
         "kategoriler": [ad_kat.get(a, "belirsiz") for a in sira],
         "reklamlar": reklamlar,
