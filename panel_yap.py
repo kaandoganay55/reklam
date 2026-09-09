@@ -13,6 +13,7 @@ Aynı dosyayı Pages'e koyunca viewport eksik kalıyor ve mobil tarayıcı sayfa
 """
 from __future__ import annotations
 
+import datetime
 import json
 import os
 import re
@@ -69,6 +70,10 @@ def main() -> int:
         return 1
     # re.sub kullanma: veri içindeki \n gibi kaçışları yorumlar ve JSON'u bozar
     dolu = sablon.replace("__DATA__", veri_ham, 1)
+    # Sürüm damgası: tarayıcı önbelleği yüzünden eski sürüme bakıldığını
+    # anlamak zor oluyordu; sayfanın dibinde derleme anı yazıyor.
+    damga = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
+    dolu = dolu.replace("__BUILD__", damga)
 
     kafa_ic, govde = parcala(dolu)
 
