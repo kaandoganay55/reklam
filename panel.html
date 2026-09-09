@@ -1,0 +1,1026 @@
+<title>Reklam Kütüphanesi Paneli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.54.1/dist/apexcharts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: { extend: {
+    fontFamily: {
+      sans: ['"IBM Plex Sans"', "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+      mono: ['"IBM Plex Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
+    },
+    colors: {
+      ground:"#f6f6f3", groundd:"#121312", surface:"#ffffff", surfaced:"#1a1a19",
+      sunken:"#f0f0ec", sunkend:"#202020", rule:"#e2e3de", ruled:"#2c2d29",
+      rulex:"#cfd0ca", rulexd:"#3d3e39", ink:"#14161a", inkd:"#f2f2ee",
+      muted:"#4b5058", mutedd:"#c3c2b7", faint:"#6f737b", faintd:"#9b9a90",
+      accent:"#2a78d6", accentd:"#3987e5", accsoft:"#e8f0fb", accsoftd:"#1d2a3a",
+      live:"#0ca30c", lived:"#3ab63a",
+    },
+    letterSpacing: { label: "0.11em" },
+  }},
+};
+</script>
+<style>
+  .tabnum{font-variant-numeric:tabular-nums}
+  .line-clamp-3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  /* Çift kollu tarih kaydırıcısı: iki range girdisi üst üste, sadece kollar tıklanabilir */
+  .kaydirici{position:relative;height:30px}
+  .kaydirici input[type=range]{
+    position:absolute;left:0;top:0;width:100%;height:30px;margin:0;
+    -webkit-appearance:none;appearance:none;background:transparent;pointer-events:none}
+  .kaydirici input[type=range]:focus{outline:none}
+  .kaydirici input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;pointer-events:auto;width:18px;height:18px;border-radius:50%;
+    background:var(--kd-thumb);border:2px solid var(--kd-ring);cursor:grab;
+    box-shadow:0 1px 3px rgba(0,0,0,.35)}
+  .kaydirici input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.1)}
+  .kaydirici input[type=range]::-moz-range-thumb{
+    pointer-events:auto;width:18px;height:18px;border-radius:50%;
+    background:var(--kd-thumb);border:2px solid var(--kd-ring);cursor:grab}
+  .kaydirici input[type=range]:focus-visible::-webkit-slider-thumb{
+    outline:2px solid var(--kd-thumb);outline-offset:2px}
+  .kaydirici .ray{position:absolute;left:0;right:0;top:13px;height:4px;border-radius:2px;
+    background:var(--kd-ray)}
+  .kaydirici .dolgu{position:absolute;top:13px;height:4px;border-radius:2px;
+    background:var(--kd-thumb)}
+  .apexcharts-toolbar{gap:2px}
+  .apexcharts-toolbar .apexcharts-menu-icon,.apexcharts-toolbar .apexcharts-reset-icon,
+  .apexcharts-toolbar .apexcharts-zoom-icon,.apexcharts-toolbar .apexcharts-zoomin-icon,
+  .apexcharts-toolbar .apexcharts-zoomout-icon,.apexcharts-toolbar .apexcharts-pan-icon{
+    transform:scale(1.05)}
+  .apexcharts-toolbar svg{fill:currentColor}
+  .apexcharts-selected svg{fill:var(--tt-fg)!important}
+  .apexcharts-tooltip{background:var(--tt-bg)!important;border:1px solid var(--tt-br)!important;
+    box-shadow:0 6px 20px rgba(0,0,0,.14)!important;border-radius:6px!important;
+    font-family:"IBM Plex Sans",sans-serif!important}
+  .apexcharts-tooltip-title{background:var(--tt-hd)!important;border-bottom:1px solid var(--tt-br)!important;
+    font-family:"IBM Plex Mono",monospace!important;font-size:11px!important;color:var(--tt-mu)!important}
+  .apexcharts-tooltip-series-group{color:var(--tt-fg)!important}
+  .apexcharts-xaxistooltip,.apexcharts-yaxistooltip{display:none!important}
+  input[type=date]{color-scheme:light}
+  .dark input[type=date]{color-scheme:dark}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="min-h-screen bg-ground dark:bg-groundd text-ink dark:text-inkd font-sans text-sm antialiased">
+<div class="mx-auto max-w-[1200px] px-3.5 sm:px-6 pt-5 sm:pt-7 pb-12 sm:pb-14 flex flex-col gap-4 sm:gap-5">
+
+  <header class="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-3 pb-3.5 border-b-2 border-ink dark:border-inkd">
+    <div>
+      <span class="block mb-1 font-mono text-[10.5px] font-medium uppercase tracking-label text-faint dark:text-faintd">graph.facebook.com / ads_archive</span>
+      <h1 class="m-0 flex items-center gap-2 sm:gap-2.5 text-[19px] sm:text-2xl font-bold tracking-tight text-balance">
+        <i data-lucide="megaphone" class="w-5 h-5 sm:w-6 sm:h-6 text-accent dark:text-accentd shrink-0"></i>
+        Reklam Kütüphanesi Paneli
+      </h1>
+    </div>
+    <div class="flex flex-wrap items-center gap-2.5">
+      <span id="stamp" class="hidden sm:inline font-mono text-[12px] text-muted dark:text-mutedd"></span>
+      <span class="inline-flex items-center gap-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-wider rounded px-2 py-1 text-accent dark:text-accentd bg-accsoft dark:bg-accsoftd border border-accent dark:border-accentd">
+        <i data-lucide="database" class="w-3 h-3"></i>Canlı veri
+      </span>
+    </div>
+  </header>
+
+  <section class="rounded-lg bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm px-3.5 sm:px-5 py-3.5 sm:py-4 flex flex-col gap-3"
+           aria-label="Filtreler">
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-2.5">
+      <span class="inline-flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-label text-faint dark:text-faintd">
+        <i data-lucide="calendar-range" class="w-3 h-3"></i>Tarih aralığı
+      </span>
+      <div id="onayar" class="flex flex-wrap gap-1.5"></div>
+      <span class="hidden sm:block w-px h-5 bg-rule dark:bg-ruled"></span>
+      <label class="inline-flex items-center gap-1.5 text-[12px] text-muted dark:text-mutedd">
+        <span class="hidden xs:inline sm:inline">Başlangıç</span><span class="sm:hidden">Baş.</span>
+        <input type="date" id="d1" class="datein">
+      </label>
+      <label class="inline-flex items-center gap-1.5 text-[12px] text-muted dark:text-mutedd">
+        <span>Bitiş</span><input type="date" id="d2" class="datein">
+      </label>
+      <span id="aralikbilgi" class="font-mono text-[11px] text-faint dark:text-faintd"></span>
+    </div>
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <span class="inline-flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-label text-faint dark:text-faintd">
+        <i data-lucide="filter" class="w-3 h-3"></i>Sayfalar
+      </span>
+      <div id="filters" class="flex flex-wrap gap-2"></div>
+    </div>
+    <p class="m-0 text-[12px] text-muted dark:text-mutedd">
+      Aralıkta <b class="font-semibold text-ink dark:text-inkd">yayında olan</b> reklamlar sayılır —
+      bir reklam aralıktan önce başlamış olsa da o tarihlerde hâlâ dönüyorsa dahildir.
+    </p>
+  </section>
+
+  <section id="tiles" aria-label="Özet"
+    class="grid grid-cols-2 xl:grid-cols-4 rounded-lg overflow-hidden bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm"></section>
+
+  <section class="rounded-lg bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm px-3 sm:px-5 pt-4 pb-2">
+    <h2 class="m-0 flex items-center gap-2 text-sm font-semibold tracking-tight">
+      <i data-lucide="activity" class="w-4 h-4 text-faint dark:text-faintd"></i>Sayfa sayfa yayın seyri
+    </h2>
+    <p id="cizgiNot" class="mt-0.5 mb-0 text-[12px] text-muted dark:text-mutedd"></p>
+    <div id="c-line" class="-ml-2 mt-1"></div>
+    <div class="mt-1 mb-3 px-1">
+      <div class="kaydirici" id="kaydirici">
+        <div class="ray"></div><div class="dolgu" id="kdDolgu"></div>
+        <input type="range" id="kd1" aria-label="Başlangıç tarihi">
+        <input type="range" id="kd2" aria-label="Bitiş tarihi">
+      </div>
+      <div class="flex items-center justify-between gap-2 font-mono text-[10.5px] text-faint dark:text-faintd -mt-0.5">
+        <span id="kdSol"></span>
+        <span id="kdOrta" class="text-muted dark:text-mutedd"></span>
+        <span id="kdSag"></span>
+      </div>
+      <div class="flex items-center justify-center gap-1.5 mt-2" id="kdDugmeler">
+        <button type="button" data-kd="geri"  aria-label="Önceki dönem" title="Önceki dönem">‹</button>
+        <button type="button" data-kd="genis" aria-label="Aralığı genişlet" title="Aralığı genişlet">−</button>
+        <button type="button" data-kd="dar"   aria-label="Aralığı daralt" title="Aralığı daralt">+</button>
+        <button type="button" data-kd="ileri" aria-label="Sonraki dönem" title="Sonraki dönem">›</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <section class="lg:col-span-2 rounded-lg bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm px-3 sm:px-5 pt-4 pb-2">
+      <h2 class="m-0 flex items-center gap-2 text-sm font-semibold tracking-tight">
+        <i data-lucide="wallet" class="w-4 h-4 text-faint dark:text-faintd"></i>Tahmini harcama
+      </h2>
+      <p class="mt-0.5 mb-0 text-[12px] text-muted dark:text-mutedd">API harcamayı aralık verir; bu, alt ve üst sınırın orta noktasıdır.</p>
+      <div id="c-spend" class="-ml-1"></div>
+    </section>
+    <section class="rounded-lg bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm px-3 sm:px-5 pt-4 pb-2">
+      <h2 class="m-0 flex items-center gap-2 text-sm font-semibold tracking-tight">
+        <i data-lucide="layers" class="w-4 h-4 text-faint dark:text-faintd"></i>Platform dağılımı
+      </h2>
+      <p class="mt-0.5 mb-0 text-[12px] text-muted dark:text-mutedd">Bir reklam birden çok platformda yayınlanabilir.</p>
+      <div id="c-plat"></div>
+    </section>
+  </div>
+
+  <section class="rounded-lg bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm px-3 sm:px-5 pt-4 pb-2">
+    <h2 class="m-0 flex items-center gap-2 text-sm font-semibold tracking-tight">
+      <i data-lucide="radio" class="w-4 h-4 text-faint dark:text-faintd"></i>Yayında / bitmiş reklam
+    </h2>
+    <p class="mt-0.5 mb-0 text-[12px] text-muted dark:text-mutedd">Sayfanın kaç reklamı hâlâ dönüyor, kaçı kapandı.</p>
+    <div id="c-status" class="-ml-1"></div>
+  </section>
+
+  <section class="flex flex-col gap-3">
+    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <h2 class="m-0 flex items-center gap-2 text-sm font-semibold tracking-tight">
+        <i data-lucide="scale" class="w-4 h-4 text-faint dark:text-faintd"></i>Karşılaştırma
+      </h2>
+      <p class="m-0 text-[12px] text-muted dark:text-mutedd">
+        Seçili tarih aralığındaki reklamlardan hesaplanır.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <section class="rounded-lg bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm px-3 sm:px-5 pt-4 pb-2">
+        <h3 class="m-0 flex items-center gap-2 text-[13px] font-semibold tracking-tight">
+          <i data-lucide="eye" class="w-3.5 h-3.5 text-faint dark:text-faintd"></i>Toplam gösterim
+        </h3>
+        <p class="mt-0.5 mb-0 text-[12px] text-muted dark:text-mutedd">
+          Reklam kaç kez ekranda göründü. <b class="font-semibold text-ink dark:text-inkd">Erişim değil</b> —
+          kaç kişiye ulaştığını API Türkiye için vermiyor.
+        </p>
+        <div id="c-gosterim" class="-ml-1"></div>
+      </section>
+      <section class="rounded-lg bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm px-3 sm:px-5 pt-4 pb-2">
+        <h3 class="m-0 flex items-center gap-2 text-[13px] font-semibold tracking-tight">
+          <i data-lucide="repeat" class="w-3.5 h-3.5 text-faint dark:text-faintd"></i>Frekans
+        </h3>
+        <p class="mt-0.5 mb-0 text-[12px] text-muted dark:text-mutedd">
+          Reklam başına gösterim ÷ hedef kitle. Gerçek frekans <b class="font-semibold text-ink dark:text-inkd">en az</b>
+          bu kadar: kitlenin tamamına ulaşılmadıysa daha yüksektir.
+        </p>
+        <div id="c-frekans" class="-ml-1"></div>
+      </section>
+      <section class="rounded-lg bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm px-3 sm:px-5 pt-4 pb-2">
+        <h3 class="m-0 flex items-center gap-2 text-[13px] font-semibold tracking-tight">
+          <i data-lucide="coins" class="w-3.5 h-3.5 text-faint dark:text-faintd"></i>Bin gösterim maliyeti
+        </h3>
+        <p class="mt-0.5 mb-0 text-[12px] text-muted dark:text-mutedd">
+          Harcama ÷ gösterim × 1000. Düşük olan parasını daha verimli harcamış.
+        </p>
+        <div id="c-bgbm" class="-ml-1"></div>
+      </section>
+    </div>
+  </section>
+
+  <section class="rounded-lg bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm px-3.5 sm:px-5 pt-4 pb-5">
+    <div class="flex flex-wrap items-center justify-between gap-3.5 mb-3">
+      <div>
+        <h2 class="m-0 flex items-center gap-2 text-sm font-semibold tracking-tight">
+          <i data-lucide="image" class="w-4 h-4 text-faint dark:text-faintd"></i>Reklam görselleri
+        </h2>
+        <p id="galeriNot" class="mt-0.5 mb-0 text-[12px] text-muted dark:text-mutedd"></p>
+      </div>
+    </div>
+    <div id="galeriFiltre" class="flex flex-wrap gap-1.5 mb-4"></div>
+    <div id="galeri" class="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4"></div>
+    <div class="mt-4 flex justify-center">
+      <button id="dahaFazla" type="button" class="hidden"></button>
+    </div>
+  </section>
+
+  <section class="rounded-lg bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm px-3.5 sm:px-5 pt-4 pb-4">
+    <div class="flex flex-wrap items-center justify-between gap-3.5 mb-3">
+      <div>
+        <h2 class="m-0 flex items-center gap-2 text-sm font-semibold tracking-tight">
+          <i data-lucide="table-2" class="w-4 h-4 text-faint dark:text-faintd"></i>Reklam listesi
+        </h2>
+        <p id="rowcount" class="mt-0.5 mb-0 text-[12px] text-muted dark:text-mutedd"></p>
+      </div>
+      <div id="seg" role="group" aria-label="Durum filtresi"
+        class="inline-flex rounded-md overflow-hidden border border-rulex dark:border-rulexd">
+        <button data-d="Hepsi" class="segbtn">Hepsi</button>
+        <button data-d="Yayında" class="segbtn">Yayında</button>
+        <button data-d="Bitmiş" class="segbtn">Bitmiş</button>
+      </div>
+    </div>
+    <div id="tbodyMobil" class="sm:hidden flex flex-col gap-2.5"></div>
+    <div class="hidden sm:block overflow-x-auto">
+      <table class="w-full min-w-[820px] border-collapse text-[12.5px]">
+        <thead><tr class="[&>th]:text-left [&>th]:font-mono [&>th]:text-[10.5px] [&>th]:font-medium [&>th]:uppercase [&>th]:tracking-[0.09em] [&>th]:text-faint dark:[&>th]:text-faintd [&>th]:pb-2 [&>th]:pr-3 [&>th]:whitespace-nowrap [&>th]:border-b [&>th]:border-rulex dark:[&>th]:border-rulexd">
+          <th>Sayfa</th><th>Reklam metni</th><th>Finansman beyanı</th>
+          <th>Başlangıç</th><th>Durum</th>
+          <th class="!text-right">Harcama (₺)</th><th class="!text-right">Gösterim</th><th>Platform</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="grid gap-x-7 gap-y-4 pt-4 border-t border-rule dark:border-ruled"
+          style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+    <div><h3 class="notehead"><i data-lucide="globe" class="w-3 h-3"></i>Kapsam</h3><p class="notebody">Türkiye AB dışında olduğu için API yalnızca siyasi ve sosyal konulu reklamları döndürür — 7 yıl geriye. Her tür reklam (<code class="ncode">ad_type=ALL</code>) sadece AB ve İngiltere'ye gösterilenler için açıktır.</p></div>
+    <div><h3 class="notehead"><i data-lucide="ruler" class="w-3 h-3"></i>Rakamlar</h3><p class="notebody">Harcama ve gösterim kesin sayı değil aralıktır (<code class="ncode">lower_bound</code>–<code class="ncode">upper_bound</code>). Üst sınır açık uçlu kovalarda hiç gelmez; panel o durumda alt sınıra düşer.</p></div>
+    <div><h3 class="notehead"><i data-lucide="shield-alert" class="w-3 h-3"></i>Beyan şartı</h3><p class="notebody">Bir reklamın kütüphanede görünmesi için reklamverenin onu siyasi olarak beyan etmiş olması gerekir. Beyansız yayınlanan reklam, yakalanana kadar buraya düşmez.</p></div>
+    <div><h3 class="notehead"><i data-lucide="info" class="w-3 h-3"></i>Bu sayfa</h3><p class="notebody" id="kaynaknot"></p></div>
+  </footer>
+</div>
+</div>
+
+<script>
+const D = __DATA__;
+
+const CLS = {
+  seg:"font-sans text-xs px-3 py-1 border-0 cursor-pointer transition-colors bg-surface dark:bg-surfaced text-muted dark:text-mutedd hover:text-ink dark:hover:text-inkd focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent",
+  segOn:"!bg-ink dark:!bg-inkd !text-surface dark:!text-surfaced",
+  segDiv:"border-l border-rule dark:border-ruled",
+  chip:"inline-flex items-center gap-2 font-sans text-[12.5px] pl-2.5 pr-3 py-1 rounded-full cursor-pointer transition-all bg-surface dark:bg-surfaced border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+  chipOn:"border-ink dark:border-inkd shadow-sm",
+  chipOff:"border-rulex dark:border-rulexd opacity-50 hover:opacity-80",
+  onay:"font-sans text-xs px-2.5 py-1 rounded-md cursor-pointer transition-colors border bg-surface dark:bg-surfaced border-rulex dark:border-rulexd text-muted dark:text-mutedd hover:text-ink dark:hover:text-inkd focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+  onayOn:"!bg-ink dark:!bg-inkd !text-surface dark:!text-surfaced !border-ink dark:!border-inkd",
+  datein:"font-mono text-[11.5px] rounded-md px-2 py-1 bg-surface dark:bg-surfaced border border-rulex dark:border-rulexd text-ink dark:text-inkd focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent",
+  td:"py-2.5 pr-3 align-top border-b border-rule dark:border-ruled",
+  notehead:"m-0 mb-1 flex items-center gap-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-label text-faint dark:text-faintd",
+  notebody:"m-0 text-[12.5px] text-muted dark:text-mutedd max-w-[60ch]",
+  ncode:"font-mono text-[11.5px] rounded px-1 py-px bg-sunken dark:bg-sunkend text-ink dark:text-inkd",
+  kart:"group flex flex-col rounded-lg overflow-hidden border border-rule dark:border-ruled bg-ground dark:bg-groundd transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+  daha:"font-sans text-xs px-4 py-2 rounded-md cursor-pointer border bg-surface dark:bg-surfaced border-rulex dark:border-rulexd text-muted dark:text-mutedd hover:text-ink dark:hover:text-inkd transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+};
+document.querySelectorAll(".segbtn").forEach((b,i) => b.className = CLS.seg + (i ? " " + CLS.segDiv : ""));
+document.querySelectorAll(".notehead").forEach(e => e.className = CLS.notehead);
+document.querySelectorAll(".notebody").forEach(e => e.className = CLS.notebody);
+document.querySelectorAll(".ncode").forEach(e => e.className = CLS.ncode);
+document.querySelectorAll(".datein").forEach(e => e.className = CLS.datein);
+
+// 14 slot: normal görüşte komşu çiftlerin en kötüsü ΔE 19.7 (eşik 15) — hepsi net
+// ayrılıyor. Renk körlüğü eşiğini (ΔE 6) 8 renkten sonra hiçbir dizilim tutturamıyor;
+// bu yüzden her grafikte sayfa adı da yazılı, renk tek ayırt edici değil.
+// 14 slot, OKLab uzayında en yakın çift maksimize edilerek seçildi:
+// en zor çift ΔE 12.9 (light) / 12.5 (dark). Resmi eşik 15 ama 14 renkte hiçbir
+// dizilim onu tutturamıyor — sınır 11 renk. Telafi: her grafikte, çipte ve kartta
+// sayfa adı yazılı, renk tek ayırt edici değil.
+// 14 slot. Sıralama komşu farkını maksimize edecek şekilde optimize edildi:
+// yan yana gelen iki renk arasında en kötü fark ΔE 23.9. Tüm çiftler arasında
+// en yakını ΔE 12.5 (resmi eşik 15; 14 renkte hiçbir küme onu tutturamıyor,
+// sınır 11 renk). Telafi: her yerde sayfa adı yazılı, renk tek ayırt edici değil.
+const PAL = {
+  light:{ seri:["#0573aa","#d65bd5","#f95801","#2b97ff","#036a34","#413cc9","#bd3403",
+                "#18b42d","#8b3655","#0cad98","#dd3172","#875df0","#9a7d0b","#8316a4"],
+    nötr:["#8a8983","#a5a49d","#6f6e69"],
+    rule:"#e2e3de", faint:"#6f737b", ink:"#14161a", muted:"#4b5058",
+    surface:"#ffffff", sunken:"#f0f0ec", live:"#0ca30c" },
+  dark:{ seri:["#1987bb","#fd6cd4","#a5720f","#265adf","#137d4a","#84a9f7","#fd8706",
+               "#15cd55","#9e4766","#00aa95","#f74865","#a04edb","#b2b04f","#ba76b7"],
+    nötr:["#7a7a74","#94938c","#63625d"],
+    rule:"#2c2d29", faint:"#9b9a90", ink:"#f2f2ee", muted:"#c3c2b7",
+    surface:"#1a1a19", sunken:"#202020", live:"#3ab63a" },
+};
+const dar = () => window.innerWidth < 640;      // telefon
+const koyuMu = () => document.documentElement.classList.contains("dark");
+const P = () => PAL[koyuMu() ? "dark" : "light"];
+const renk = i => i < P().seri.length ? P().seri[i]
+                 : P()["nötr"][(i - P().seri.length) % P()["nötr"].length];
+
+const AY = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+const nf = new Intl.NumberFormat("tr-TR");
+const fmt = n => nf.format(Math.round(n || 0));
+const kisa = n => n >= 1e6 ? (n/1e6).toFixed(1).replace(".",",")+" Mn"
+               : n >= 1e3 ? (n/1e3).toFixed(0)+" B" : fmt(n);
+const gunAy = s => { const d = new Date(s); return d.getDate()+" "+AY[d.getMonth()]; };
+const ayYil = s => AY[+s.slice(5,7)-1] + " " + s.slice(0,4);
+const uzun = s => { const d = new Date(s); return d.getDate()+" "+AY[d.getMonth()]+" "+d.getFullYear(); };
+const trTarih = s => s ? s.split("-").reverse().join(".") : "—";
+const bugun = new Date().toISOString().slice(0,10);
+const gunFark = (a,b) => Math.round((new Date(b) - new Date(a)) / 86400000);
+const gunEkle = (s,n) => new Date(new Date(s).getTime() + n*86400000).toISOString().slice(0,10);
+const sinirla = s => s < D.ilk ? D.ilk : (s > D.son ? D.son : s);
+
+const ONAYAR = [
+  {ad:"Tümü",        bas:D.ilk,                  son:D.son},
+  {ad:"2024 seçimi", bas:"2023-12-01",           son:"2024-06-30"},
+  {ad:"Son 24 ay",   bas:gunEkle(bugun,-730),    son:bugun},
+  {ad:"Son 12 ay",   bas:gunEkle(bugun,-365),    son:bugun},
+];
+
+const state = { secili:new Set(D.sayfalar.map((_,i) => i)), durum:"Hepsi",
+                bas:D.ilk, son:D.son, galeriKisi:null };
+
+/* Reklam aralıkta "yayında" sayılır: yayın süresi aralıkla kesişiyorsa. */
+const bitis = r => r.e || bugun;
+const halaYayinda = r => !r.e || r.e >= bugun;
+const orta = (a,b) => a == null ? 0 : (b == null ? a : (a + b) / 2);
+const filtreli = () => D.reklamlar.filter(r =>
+  state.secili.has(r.s) && r.b <= state.son && bitis(r) >= state.bas);
+
+/* ---- tema ---- */
+function temaUygula(){
+  const t = document.documentElement.getAttribute("data-theme");
+  document.documentElement.classList.toggle("dark",
+    t === "dark" || (t !== "light" && matchMedia("(prefers-color-scheme: dark)").matches));
+  const c = P(), r = document.documentElement.style;
+  r.setProperty("--tt-bg", c.surface); r.setProperty("--tt-br", c.rule);
+  r.setProperty("--tt-hd", c.sunken);  r.setProperty("--tt-fg", c.ink);
+  r.setProperty("--tt-mu", c.muted);
+}
+temaUygula();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { temaUygula(); ciz(); });
+new MutationObserver(() => { temaUygula(); ciz(); })
+  .observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+
+/* ---- grafik iskeleti ---- */
+const grafikler = {};
+function ortak(){
+  const c = P();
+  return {
+    chart:{ background:"transparent", fontFamily:'"IBM Plex Sans", sans-serif',
+      toolbar:{show:false}, animations:{enabled:true, speed:380}, parentHeightOffset:0 },
+    theme:{ mode: koyuMu() ? "dark" : "light" },
+    grid:{ borderColor:c.rule, strokeDashArray:0, padding:{left:4,right:8,top:0} },
+    dataLabels:{enabled:false},
+    tooltip:{ theme: koyuMu() ? "dark" : "light" },
+    // Telefonda dokunmatik: ipucu kutusu parmağın altında kalmasın
+    ...(dar() ? {tooltip:{theme: koyuMu() ? "dark" : "light", followCursor:false}} : {}),
+    states:{ hover:{filter:{type:"lighten",value:.06}}, active:{filter:{type:"none"}} },
+  };
+}
+function ciz1(id, opt){
+  if (grafikler[id]) grafikler[id].destroy();
+  const el = document.querySelector(id); if (!el) return;
+  grafikler[id] = new ApexCharts(el, opt); grafikler[id].render();
+}
+
+/* ---- kontroller ---- */
+const obox = document.getElementById("onayar");
+ONAYAR.forEach(o => {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = o.ad; b._o = o;
+  b.onclick = () => { state.bas = sinirla(o.bas); state.son = sinirla(o.son); ciz(); };
+  obox.appendChild(b);
+});
+const d1 = document.getElementById("d1"), d2 = document.getElementById("d2");
+d1.min = d2.min = D.ilk; d1.max = d2.max = D.son;
+d1.onchange = () => { if (!d1.value) return;
+  state.bas = sinirla(d1.value); if (state.son < state.bas) state.son = state.bas; ciz(); };
+d2.onchange = () => { if (!d2.value) return;
+  state.son = sinirla(d2.value); if (state.bas > state.son) state.bas = state.son; ciz(); };
+
+const fbox = document.getElementById("filters");
+D.sayfalar.forEach((ad,i) => {
+  const b = document.createElement("button");
+  b.type = "button"; b._i = i;
+  b.innerHTML = '<span class="w-2 h-2 rounded-full shrink-0" data-dot></span>' +
+                '<span class="text-ink dark:text-inkd">' + ad + '</span>';
+  b.onclick = () => {
+    state.secili.has(i) ? state.secili.delete(i) : state.secili.add(i);
+    if (!state.secili.size) state.secili = new Set(D.sayfalar.map((_,k) => k));
+    ciz();
+  };
+  fbox.appendChild(b);
+});
+document.getElementById("seg").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  state.durum = b.dataset.d; ciz();
+};
+
+/* ---- tarih kaydırıcısı: çift kollu, tüm arşivi kapsar ---- */
+const TOPLAM_GUN = gunFark(D.ilk, D.son);
+const kd1 = document.getElementById("kd1"), kd2 = document.getElementById("kd2");
+const kdDolgu = document.getElementById("kdDolgu");
+[kd1, kd2].forEach(el => { el.min = 0; el.max = TOPLAM_GUN; el.step = 1; });
+
+function kdBoyaCiz(){
+  const c = P(), r = document.documentElement.style;
+  r.setProperty("--kd-thumb", c.seri[0]);
+  r.setProperty("--kd-ring", c.surface);
+  r.setProperty("--kd-ray", c.rule);
+}
+
+function kdGorunum(a, b){
+  const sol = a / TOPLAM_GUN * 100, sag = b / TOPLAM_GUN * 100;
+  kdDolgu.style.left = sol + "%";
+  kdDolgu.style.width = Math.max(sag - sol, 0.5) + "%";
+  document.getElementById("kdSol").textContent = uzun(gunEkle(D.ilk, a));
+  document.getElementById("kdSag").textContent = uzun(gunEkle(D.ilk, b));
+  document.getElementById("kdOrta").textContent = fmt(b - a) + " gün";
+}
+
+/* Ok tuşlarıyla dönem dönem gezinme: pencere genişliği sabit kalır, konumu kayar. */
+const KD_DUGME = "w-9 h-8 rounded-md border border-rulex dark:border-rulexd " +
+  "bg-surface dark:bg-surfaced text-muted dark:text-mutedd text-base leading-none " +
+  "cursor-pointer transition-colors hover:text-ink dark:hover:text-inkd " +
+  "disabled:opacity-35 disabled:cursor-default " +
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+
+document.querySelectorAll("#kdDugmeler button").forEach(b => b.className = KD_DUGME);
+
+document.getElementById("kdDugmeler").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  let a = gunFark(D.ilk, state.bas), z = gunFark(D.ilk, state.son);
+  const genislik = z - a;
+  const adim = Math.max(1, Math.round(genislik / 2));      // yarım pencere kaydır
+
+  if (b.dataset.kd === "geri")  { a -= adim; z -= adim; }
+  if (b.dataset.kd === "ileri") { a += adim; z += adim; }
+  if (b.dataset.kd === "dar")   { const k = Math.round(genislik / 4); a += k; z -= k; }
+  if (b.dataset.kd === "genis") { const k = Math.round(genislik / 2); a -= k; z += k; }
+
+  // Kenarlara dayanınca pencereyi kırpmadan sınır içine al
+  if (a < 0) { z -= a; a = 0; }
+  if (z > TOPLAM_GUN) { a -= (z - TOPLAM_GUN); z = TOPLAM_GUN; }
+  a = Math.max(0, a); z = Math.min(TOPLAM_GUN, z);
+  if (z - a < 7) return;                                    // en az bir hafta
+
+  state.bas = gunEkle(D.ilk, a); state.son = gunEkle(D.ilk, z);
+  ciz();
+};
+
+function kdEsitle(){                       // durumu kaydırıcıya yansıt
+  const a = gunFark(D.ilk, state.bas), b = gunFark(D.ilk, state.son);
+  kd1.value = a; kd2.value = b;
+  kdGorunum(a, b);
+  const tam = (a === 0 && b === TOPLAM_GUN);
+  document.querySelector('[data-kd="geri"]').disabled  = (a === 0);
+  document.querySelector('[data-kd="ileri"]').disabled = (b === TOPLAM_GUN);
+  document.querySelector('[data-kd="genis"]').disabled = tam;
+  document.querySelector('[data-kd="dar"]').disabled   = (b - a < 14);
+}
+
+function kdOku(){                          // kollar çakışmasın
+  let a = +kd1.value, b = +kd2.value;
+  if (a > b - 1) { if (document.activeElement === kd1) a = b - 1; else b = a + 1; }
+  a = Math.max(0, a); b = Math.min(TOPLAM_GUN, b);
+  kd1.value = a; kd2.value = b;
+  return [a, b];
+}
+
+[kd1, kd2].forEach(el => {
+  // Sürüklerken sadece etiketler güncellensin (grafik yeniden çizmek ağır)
+  el.addEventListener("input", () => kdGorunum(...kdOku()));
+  // Bırakınca panel yeniden hesaplansın
+  el.addEventListener("change", () => {
+    const [a, b] = kdOku();
+    state.bas = gunEkle(D.ilk, a); state.son = gunEkle(D.ilk, b);
+    ciz();
+  });
+});
+
+/* ---- ölçüm şeridi ---- */
+function tiles(rows){
+  const yayinda = rows.filter(halaYayinda).length;
+  const alt = rows.reduce((s,r) => s + (r.hl || 0), 0);
+  const ust = rows.reduce((s,r) => s + (r.hu != null ? r.hu : (r.hl || 0)), 0);
+  const gos = rows.reduce((s,r) => s + orta(r.gl, r.gu), 0);
+  const sayfa = new Set(rows.map(r => r.s)).size;
+  const kutu = (ikon,k,v,s,kucuk) =>
+    '<div class="px-3.5 py-3 sm:px-5 sm:py-4 border-l border-t [&:nth-child(-n+2)]:border-t-0 ' +
+      '[&:nth-child(odd)]:border-l-0 xl:border-t-0 xl:[&:nth-child(odd)]:border-l ' +
+      'xl:first:border-l-0 border-rule dark:border-ruled">' +
+      '<div class="flex items-center gap-1.5 font-mono text-[9.5px] sm:text-[10.5px] uppercase tracking-label text-faint dark:text-faintd">' +
+        '<i data-lucide="'+ikon+'" class="w-3 h-3 shrink-0"></i><span class="truncate">'+k+'</span></div>' +
+      '<div class="mt-1 sm:mt-1.5 font-semibold tracking-tight tabnum ' +
+        (kucuk ? "text-[15px] sm:text-[19px]" : "text-[21px] sm:text-[27px]") + '">'+v+'</div>' +
+      '<div class="mt-0.5 text-[10.5px] sm:text-[12px] text-muted dark:text-mutedd">'+s+'</div></div>';
+  document.getElementById("tiles").innerHTML =
+    kutu("layout-grid","Reklam", fmt(rows.length), sayfa + " sayfa · seçili aralıkta") +
+    kutu("radio","Hâlâ yayında", fmt(yayinda),
+         yayinda ? "bugün itibarıyla dönüyor" : "aralıkta aktif kampanya yok") +
+    kutu("wallet","Tahmini harcama", kisa(alt) + " – " + kisa(ust) + " ₺", "alt ve üst sınır toplamı", true) +
+    kutu("eye","Tahmini gösterim", kisa(gos), "orta noktalardan", true);
+}
+
+/* ---- çizgi grafik ---- */
+/* Telefonda zaman serisi grafiği çalışmıyor: 14 kişi, dar ekran, imleç yok.
+   Onun yerine kişi başına bir satır — ismi yazılı, kendi aktivite şeridi var,
+   yükseklikler ortak ölçekte olduğu için satırlar birbiriyle kıyaslanabilir. */
+function kisiSeritleri(rows, secili){
+  const c = P();
+  if (grafikler["#c-line"]) { grafikler["#c-line"].destroy(); delete grafikler["#c-line"]; }
+
+  const KOVA = 44;
+  const gun = Math.max(1, gunFark(state.bas, state.son));
+  const sinir = [];
+  for (let i = 0; i <= KOVA; i++) sinir.push(gunEkle(state.bas, Math.round(gun * i / KOVA)));
+
+  // Her kişi için kova kova "o aralıkta yayında olan reklam" sayısı
+  const satirlar = [...state.secili].map(i => {
+    const alt = rows.filter(r => r.s === i);
+    const seri = [];
+    for (let k = 0; k < KOVA; k++)
+      seri.push(alt.filter(r => r.b <= sinir[k+1] && bitis(r) >= sinir[k]).length);
+    return {
+      i, ad: D.sayfalar[i], seri,
+      reklam: alt.length,
+      harcama: alt.reduce((s,r) => s + orta(r.hl, r.hu), 0),
+      zirve: Math.max(0, ...seri),
+    };
+  }).filter(s => s.reklam > 0).sort((a,b) => b.reklam - a.reklam);
+
+  const enYuksek = Math.max(1, ...satirlar.map(s => s.zirve));
+
+  document.getElementById("cizgiNot").textContent = satirlar.length
+    ? "Her satır bir sayfa · şerit, o tarihte yayında olan reklam sayısı · " +
+      "yükseklikler ortak ölçekte, satırlar kıyaslanabilir."
+    : "Bu aralıkta reklam yok.";
+
+  const serit = s => {
+    const G = 4, A = 1.5, Y = 24;          // bar genişliği, aralık, yükseklik
+    const W = KOVA * (G + A);
+    const cubuklar = s.seri.map((v,k) => {
+      const yuk = v ? Math.max(2, v / enYuksek * Y) : 0;
+      if (!yuk) return "";
+      return '<rect x="' + (k*(G+A)) + '" y="' + (Y-yuk).toFixed(1) +
+             '" width="' + G + '" height="' + yuk.toFixed(1) +
+             '" rx="1.2" fill="' + renk(s.i) + '"/>';
+    }).join("");
+    // Zemin bandı: çubuklar kısa olsa da satırın bir grafik alanı olduğu belli olsun
+    return '<svg viewBox="0 0 ' + W + ' ' + Y + '" preserveAspectRatio="none" ' +
+           'class="w-full h-[24px] block rounded-sm" aria-hidden="true" ' +
+           'style="background:' + c.sunken + '">' +
+           '<rect x="0" y="' + (Y-1) + '" width="' + W + '" height="1" fill="' + c.rule + '"/>' +
+           cubuklar + '</svg>';
+  };
+
+  document.getElementById("c-line").innerHTML =
+    '<div class="flex flex-col">' + satirlar.map(s =>
+      '<div class="py-2 border-b border-rule dark:border-ruled last:border-b-0">' +
+        '<div class="flex items-baseline justify-between gap-2 mb-1">' +
+          '<span class="flex items-center gap-1.5 min-w-0">' +
+            '<i class="block w-2.5 h-2.5 rounded-full shrink-0" style="background:' + renk(s.i) + '"></i>' +
+            '<span class="truncate text-[13px] font-medium">' + s.ad + '</span></span>' +
+          '<span class="font-mono text-[10.5px] tabnum text-muted dark:text-mutedd shrink-0">' +
+            fmt(s.reklam) + ' reklam · ' + kisa(s.harcama) + ' ₺</span></div>' +
+        serit(s) +
+      '</div>').join("") + '</div>' +
+    '<div class="flex justify-between font-mono text-[10px] text-faint dark:text-faintd pt-2">' +
+      '<span>' + uzun(state.bas) + '</span><span>' + uzun(state.son) + '</span></div>';
+}
+
+function cizgi(rows){
+  const c = P();
+  const genislik = Math.max(1, gunFark(state.bas, state.son));
+  const adim = genislik > 900 ? 7 : genislik > 300 ? 3 : 1;
+  const noktalar = [];
+  for (let g = 0; g <= genislik; g += adim) noktalar.push(gunEkle(state.bas, g));
+  if (noktalar[noktalar.length - 1] !== state.son) noktalar.push(state.son);
+
+  // Çizgi grafikte en fazla 8 seri: fazlası hem okunmuyor hem renk kimliğini bozuyor.
+  const CIZGI_MAX = 8;
+  const sayilar = {};
+  [...state.secili].forEach(i => sayilar[i] = rows.filter(r => r.s === i).length);
+  const tumSecili = [...state.secili].sort((a,b) => (sayilar[b] - sayilar[a]) || (a - b));
+  const secili = tumSecili.slice(0, CIZGI_MAX).sort((a,b) => a - b);
+  const disarida = tumSecili.length - secili.length;
+
+  if (dar()) { kisiSeritleri(rows, [...state.secili]); return; }
+
+  const seriler = secili.map(i => {
+    const alt = rows.filter(r => r.s === i);
+    return { name: D.sayfalar[i],
+             data: noktalar.map(g => alt.filter(r => r.b <= g && bitis(r) >= g).length) };
+  });
+
+  document.getElementById("cizgiNot").textContent =
+    "Her noktada o tarihte yayında olan reklam sayısı" +
+    (adim > 1 ? " · " + adim + " günde bir örneklendi" : "") +
+    (disarida > 0 ? " · en çok reklamı olan " + CIZGI_MAX + " sayfa gösteriliyor, " +
+      disarida + " sayfa çizgide yok (çubuklarda ve galeride hepsi var)" : "") + ". " +
+    "Aralığı değiştirmek için alttaki çubuğun kollarını sürükle, ya da grafik üzerinde " +
+    "sürükleyerek yakınlaştır. Seçtiğin aralık tüm panele uygulanır.";
+
+  ciz1("#c-line", Object.assign(ortak(), {
+    chart: Object.assign(ortak().chart, {
+      type:"area", height: dar() ? 230 : 320, stacked:false,
+      // Sürükleyerek yakınlaştır, el aracıyla kaydır. Telefonda parmakla sıkıştır.
+      zoom:{ enabled:true, type:"x", autoScaleYaxis:true },
+      toolbar:{ show:true, offsetY:-6, autoSelected:"zoom",
+        tools:{ download:false, selection:false, zoom:true, zoomin:true,
+                zoomout:true, pan:false, reset:true } },
+      events:{
+        // Yakınlaştırma tarih filtresine yazılır: tüm panel o aralığa odaklanır.
+        zoomed: (ctx, {xaxis}) => {
+          if (!xaxis || xaxis.min == null || xaxis.max == null) return;
+          const i = Math.max(0, Math.round(xaxis.min));
+          const j = Math.min(noktalar.length - 1, Math.round(xaxis.max));
+          if (j - i < 1) return;
+          state.bas = noktalar[i]; state.son = noktalar[j];
+          ciz();
+        },
+        beforeResetZoom: () => { state.bas = D.ilk; state.son = D.son; setTimeout(ciz, 0); },
+      },
+    }),
+    series: seriler,
+    colors: secili.map(renk),
+    stroke:{curve:"smooth", width:2},
+    fill:{type:"gradient", gradient:{shadeIntensity:.5, opacityFrom:.22, opacityTo:.02, stops:[0,95]}},
+    legend:{show:false},
+    markers:{size:0, hover:{size:5}},
+    xaxis:{ type:"category", categories:noktalar, tickAmount: dar() ? 3 : 7,
+      axisBorder:{show:false}, axisTicks:{show:false},
+      crosshairs:{stroke:{color:c.faint, width:1}},
+      labels:{ rotate:0, hideOverlappingLabels:true,
+        style:{colors:c.faint, fontSize: dar() ? "9.5px" : "11px", fontFamily:'"IBM Plex Mono", monospace'},
+        formatter:v => genislik > 400 ? ayYil(String(v)) : gunAy(String(v)) } },
+    yaxis:{ labels:{ style:{colors:c.faint, fontSize:"11px", fontFamily:'"IBM Plex Mono", monospace'},
+      formatter:v => Math.round(v) } },
+    tooltip:{ shared:true, intersect:false, theme: koyuMu() ? "dark" : "light",
+      x:{ formatter:v => uzun(String(v)) }, y:{ formatter:v => v + " reklam" } },
+  }));
+}
+
+/* ---- harcama ---- */
+function harcama(rows){
+  const c = P();
+  const veri = [...state.secili].map(i => ({
+    ad: D.sayfalar[i], i,
+    v: rows.filter(r => r.s === i).reduce((s,r) => s + orta(r.hl, r.hu), 0),
+  })).sort((a,b) => a.v - b.v);
+  ciz1("#c-spend", Object.assign(ortak(), {
+    chart: Object.assign(ortak().chart, {type:"bar", height: 50 + veri.length * (dar() ? 30 : 40)}),
+    series:[{name:"Tahmini harcama", data: veri.map(v => Math.round(v.v))}],
+    colors: veri.map(v => renk(v.i)),
+    plotOptions:{bar:{horizontal:true, distributed:true, borderRadius:4,
+      borderRadiusApplication:"end", barHeight:"58%"}},
+    dataLabels:{ enabled: !dar(), textAnchor:"start", offsetX:8, formatter:v => kisa(v) + " ₺",
+      style:{fontSize:"11px", fontFamily:'"IBM Plex Mono", monospace', colors:[c.muted]},
+      background:{enabled:false}, dropShadow:{enabled:false} },
+    legend:{show:false},
+    xaxis:{ categories: veri.map(v => v.ad), axisBorder:{show:false}, axisTicks:{show:false},
+      labels:{style:{colors:c.faint, fontSize:"11px", fontFamily:'"IBM Plex Mono", monospace'},
+        formatter:v => kisa(v)} },
+    yaxis:{ labels:{style:{colors:c.ink, fontSize: dar() ? "10.5px" : "12px"},
+      maxWidth: dar() ? 104 : 150} },
+    tooltip:{ theme: koyuMu() ? "dark" : "light", y:{formatter:v => fmt(v) + " ₺ (tahmini)"} },
+  }));
+}
+
+/* ---- karşılaştırma: gösterim, frekans, bin gösterim maliyeti ---- */
+function metrikCubuk(id, veri, opt){
+  const c = P();
+  const sirali = [...veri].sort((a,b) => (opt.tersSirala ? b.v - a.v : a.v - b.v));
+  ciz1(id, Object.assign(ortak(), {
+    chart: Object.assign(ortak().chart, {type:"bar", height: 40 + sirali.length * (dar() ? 26 : 32)}),
+    series:[{name: opt.ad, data: sirali.map(v => Number(v.v.toFixed(opt.ondalik || 0)))}],
+    colors: sirali.map(v => renk(v.i)),
+    plotOptions:{bar:{horizontal:true, distributed:true, borderRadius:3,
+      borderRadiusApplication:"end", barHeight:"56%"}},
+    dataLabels:{ enabled: !dar(), textAnchor:"start", offsetX:6,
+      formatter:v => opt.etiket(v),
+      style:{fontSize:"10.5px", fontFamily:'"IBM Plex Mono", monospace', colors:[c.muted]},
+      background:{enabled:false}, dropShadow:{enabled:false} },
+    legend:{show:false},
+    grid:{ borderColor:c.rule, padding:{left:4, right: dar() ? 8 : 40, top:0} },
+    xaxis:{ categories: sirali.map(v => v.ad), axisBorder:{show:false}, axisTicks:{show:false},
+      labels:{style:{colors:c.faint, fontSize:"10.5px", fontFamily:'"IBM Plex Mono", monospace'},
+        formatter:v => opt.eksen ? opt.eksen(v) : kisa(v)} },
+    yaxis:{ labels:{style:{colors:c.ink, fontSize: dar() ? "10.5px" : "11.5px"},
+      maxWidth: dar() ? 104 : 120} },
+    tooltip:{ theme: koyuMu() ? "dark" : "light", y:{formatter:v => opt.ipucu(v)} },
+  }));
+}
+
+function karsilastirma(rows){
+  const gosterim = [], frekans = [], bgbm = [];
+  [...state.secili].forEach(i => {
+    const alt = rows.filter(r => r.s === i);
+    if (!alt.length) return;
+    const ad = D.sayfalar[i];
+    const gTop = alt.reduce((s,r) => s + orta(r.gl, r.gu), 0);
+    const hTop = alt.reduce((s,r) => s + orta(r.hl, r.hu), 0);
+    gosterim.push({ad, i, v:gTop});
+
+    // Frekans: reklam başına gösterim / hedef kitle, sonra ortalama.
+    const oranlar = alt.map(r => {
+      const kitle = orta(r.al, r.au);
+      return kitle > 0 ? orta(r.gl, r.gu) / kitle : null;
+    }).filter(x => x != null);
+    if (oranlar.length)
+      frekans.push({ad, i, v: oranlar.reduce((a,b) => a + b, 0) / oranlar.length});
+
+    if (gTop > 0) bgbm.push({ad, i, v: hTop / gTop * 1000});
+  });
+
+  metrikCubuk("#c-gosterim", gosterim, {
+    ad:"Tahmini gösterim", etiket: v => kisa(v),
+    ipucu: v => fmt(v) + " gösterim (tahmini)" });
+  metrikCubuk("#c-frekans", frekans, {
+    ad:"Frekans", ondalik:2,
+    etiket: v => v.toFixed(2).replace(".", ","),
+    eksen: v => Number(v).toFixed(1).replace(".", ","),
+    ipucu: v => "kişi başına en az " + v.toFixed(2).replace(".", ",") + " gösterim" });
+  metrikCubuk("#c-bgbm", bgbm, {
+    ad:"Bin gösterim maliyeti", ondalik:1, tersSirala:true,
+    etiket: v => v.toFixed(1).replace(".", ",") + " ₺",
+    eksen: v => Number(v).toFixed(0) + " ₺",
+    ipucu: v => v.toFixed(2).replace(".", ",") + " ₺ / 1000 gösterim" });
+}
+
+/* ---- yayında / bitmiş ---- */
+function durumGrafik(rows){
+  const c = P();
+  const veri = [...state.secili].map(i => {
+    const alt = rows.filter(r => r.s === i);
+    return { ad:D.sayfalar[i], y:alt.filter(halaYayinda).length,
+             b:alt.filter(r => !halaYayinda(r)).length, t:alt.length };
+  }).sort((a,b) => a.t - b.t);
+  ciz1("#c-status", Object.assign(ortak(), {
+    chart: Object.assign(ortak().chart, {type:"bar", height: 60 + veri.length * (dar() ? 30 : 40), stacked:true}),
+    series:[{name:"Yayında", data:veri.map(v => v.y)}, {name:"Bitmiş", data:veri.map(v => v.b)}],
+    colors:[c.seri[0], c.seri[1]],
+    plotOptions:{bar:{horizontal:true, borderRadius:4, borderRadiusApplication:"end", barHeight:"58%"}},
+    dataLabels:{enabled: !dar(), formatter:v => v || "",
+      style:{fontSize:"11px", fontFamily:'"IBM Plex Mono", monospace', colors:["#ffffff"]},
+      dropShadow:{enabled:false}},
+    legend:{position:"top", horizontalAlign:"left", offsetX:-12, offsetY:2,
+      markers:{width:12, height:3, radius:2}, labels:{colors:c.muted}, fontSize:"12px"},
+    xaxis:{ categories: veri.map(v => v.ad), axisBorder:{show:false}, axisTicks:{show:false},
+      labels:{style:{colors:c.faint, fontSize:"11px", fontFamily:'"IBM Plex Mono", monospace'}} },
+    yaxis:{ labels:{style:{colors:c.ink, fontSize: dar() ? "10.5px" : "12px"},
+      maxWidth: dar() ? 104 : 150} },
+    tooltip:{ theme: koyuMu() ? "dark" : "light", shared:true, intersect:false,
+      y:{formatter:v => v + " reklam"} },
+  }));
+}
+
+/* ---- platform ---- */
+function platform(rows){
+  const c = P(), sayac = {};
+  rows.forEach(r => r.p.forEach(p => sayac[p] = (sayac[p] || 0) + 1));
+  const adlar = {facebook:"Facebook", instagram:"Instagram", messenger:"Messenger",
+                 audience_network:"Audience Net.", threads:"Threads"};
+  const adlandir = k => adlar[k] || (k.charAt(0).toUpperCase() + k.slice(1));
+  const anahtar = Object.keys(sayac).sort((a,b) => sayac[b] - sayac[a]);
+  if (!anahtar.length){
+    ciz1("#c-plat", Object.assign(ortak(), {
+      chart: Object.assign(ortak().chart, {type:"donut", height:246}),
+      series:[1], labels:["Veri yok"], colors:[c.rule], legend:{show:false},
+      tooltip:{enabled:false}, dataLabels:{enabled:false},
+      plotOptions:{pie:{donut:{size:"62%"}}} }));
+    return;
+  }
+  ciz1("#c-plat", Object.assign(ortak(), {
+    chart: Object.assign(ortak().chart, {type:"donut", height: dar() ? 210 : 246}),
+    series: anahtar.map(k => sayac[k]),
+    labels: anahtar.map(adlandir),
+    colors: [c.seri[0], c.seri[2], c.seri[3], c.seri[4], c.seri[1]],
+    stroke:{width:2, colors:[c.surface]},
+    legend:{position:"bottom", horizontalAlign:"center", offsetY:2,
+      markers:{width:9, height:9, radius:3}, labels:{colors:c.muted}, fontSize:"12px"},
+    plotOptions:{pie:{donut:{size:"62%", labels:{show:true,
+      name:{show:true, fontSize:"12px", color:c.muted, offsetY:-2},
+      value:{show:true, fontSize:"20px", fontWeight:600, color:c.ink, offsetY:2, formatter:v => fmt(v)},
+      total:{show:true, label:"Toplam", color:c.muted,
+        formatter:w => fmt(w.globals.seriesTotals.reduce((a,b) => a + b, 0))}}}}},
+    tooltip:{theme: koyuMu() ? "dark" : "light", y:{formatter:v => v + " reklam"}},
+  }));
+}
+
+/* ---- galeri: reklam kreatifleri ---- */
+const GALERI_ADIM = 24;
+let galeriLimit = GALERI_ADIM;
+const kacis = s => String(s == null ? "" : s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+function galeriFiltre(rows){
+  const kutu = document.getElementById("galeriFiltre");
+  // Sadece bu aralıkta görseli olan sayfalar seçilebilir olsun.
+  const sayilar = {};
+  rows.filter(r => r.g).forEach(r => sayilar[r.s] = (sayilar[r.s] || 0) + 1);
+  const varOlan = Object.keys(sayilar).map(Number).sort((a,b) => sayilar[b] - sayilar[a]);
+
+  if (varOlan.length < 2){ kutu.innerHTML = ""; return; }
+  if (state.galeriKisi != null && !(state.galeriKisi in sayilar)) state.galeriKisi = null;
+
+  const dugme = (etiket, deger, hex, adet) => {
+    const secili = state.galeriKisi === deger;
+    return '<button type="button" data-kisi="' + (deger == null ? "" : deger) + '" ' +
+      'aria-pressed="' + secili + '" class="' + CLS.onay + (secili ? " " + CLS.onayOn : "") + '">' +
+      (hex ? '<i class="inline-block w-2 h-2 rounded-full mr-1.5 align-middle" style="background:' + hex + '"></i>' : '') +
+      etiket + '<span class="ml-1.5 opacity-60 tabnum">' + adet + '</span></button>';
+  };
+  kutu.innerHTML = dugme("Hepsi", null, null, rows.filter(r => r.g).length) +
+    varOlan.map(i => dugme(D.sayfalar[i], i, renk(i), sayilar[i])).join("");
+}
+
+document.getElementById("galeriFiltre").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const d = b.dataset.kisi;
+  state.galeriKisi = d === "" ? null : Number(d);
+  galeriLimit = GALERI_ADIM;
+  const rows = filtreli();
+  galeriFiltre(rows); galeri(rows); lucide.createIcons();
+};
+
+function galeri(rows){
+  const c = P();
+  const gorselli = rows.filter(r => r.g &&
+    (state.galeriKisi == null || r.s === state.galeriKisi));
+  const kutu = document.getElementById("galeri");
+  const dugme = document.getElementById("dahaFazla");
+
+  if (!gorselli.length){
+    kutu.innerHTML = '<p class="m-0 col-span-full py-6 text-center text-[12.5px] text-muted dark:text-mutedd">' +
+      (rows.length
+        ? "Bu aralıktaki " + fmt(rows.length) + " reklamın görseli indirilmemiş. " +
+          "Terminalde: python3 gorsel.py --kisiler --adet 8"
+        : "Bu aralıkta reklam yok.") + '</p>';
+    dugme.className = "hidden";
+    document.getElementById("galeriNot").textContent = "";
+    return;
+  }
+
+  kutu.innerHTML = gorselli.slice(0, galeriLimit).map(r => {
+    const on = halaYayinda(r);
+    const h = r.hl == null ? "—" : (r.hu == null ? fmt(r.hl)+"+ ₺" : fmt(r.hl)+"–"+fmt(r.hu)+" ₺");
+    return '<a class="'+CLS.kart+'" target="_blank" rel="noopener noreferrer" ' +
+      'href="https://www.facebook.com/ads/library/?id='+r.id+'" ' +
+      'title="Reklam Kütüphanesi\'nde aç">' +
+      '<img src="'+r.g+'" alt="'+kacis((r.t||"").slice(0,80))+'" loading="lazy" ' +
+        'class="w-full block bg-surface dark:bg-surfaced">' +
+      '<div class="flex flex-col gap-1.5 px-3 py-2.5 border-t border-rule dark:border-ruled">' +
+        '<div class="flex items-center gap-2 min-w-0">' +
+          '<i class="block w-2 h-2 rounded-full shrink-0" style="background:'+renk(r.s)+'"></i>' +
+          '<span class="truncate text-[12.5px] font-medium">'+kacis(D.sayfalar[r.s])+'</span></div>' +
+        '<div class="flex items-center justify-between gap-2 text-[11px]">' +
+          '<span class="font-mono text-faint dark:text-faintd">'+trTarih(r.b)+'</span>' +
+          '<span class="inline-flex items-center gap-1 whitespace-nowrap" style="color:'+(on?c.live:c.faint)+'">' +
+            '<i class="block w-1.5 h-1.5 rounded-full" style="background:currentColor"></i>' +
+            (on ? "Yayında" : "Bitmiş") + '</span></div>' +
+        '<div class="font-mono text-[11px] tabnum text-muted dark:text-mutedd">'+h+'</div>' +
+      '</div></a>';
+  }).join("");
+
+  if (gorselli.length > galeriLimit){
+    dugme.className = CLS.daha;
+    dugme.textContent = "Daha fazla göster (" + fmt(gorselli.length - galeriLimit) + " kaldı)";
+  } else {
+    dugme.className = "hidden";
+  }
+
+  document.getElementById("galeriNot").textContent =
+    fmt(Math.min(galeriLimit, gorselli.length)) + " / " + fmt(gorselli.length) + " görsel" +
+    (state.galeriKisi != null ? " · sadece " + D.sayfalar[state.galeriKisi] : "") +
+    " · seçili aralıkta " + fmt(rows.length) + " reklam var · karta tıkla, " +
+    "Reklam Kütüphanesi'nde açılsın";
+}
+
+document.getElementById("dahaFazla").onclick = () => {
+  galeriLimit += GALERI_ADIM;
+  galeri(filtreli());
+  lucide.createIcons();
+};
+
+/* ---- tablo ---- */
+const LIMIT = 80;
+function tablo(rows){
+  const c = P();
+  const secili = rows.filter(r => state.durum === "Hepsi" ||
+    (state.durum === "Yayında") === halaYayinda(r));
+  const num = CLS.td + " text-right font-mono tabnum !pr-0";
+  const dim = CLS.td + " text-muted dark:text-mutedd max-w-[300px]";
+  document.getElementById("tbody").innerHTML = secili.slice(0, LIMIT).map(r => {
+    const h = r.hl == null ? "—" : (r.hu == null ? fmt(r.hl)+"+" : fmt(r.hl)+"–"+fmt(r.hu));
+    const g = r.gl == null ? "—" : (r.gu == null ? fmt(r.gl)+"+" : fmt(r.gl)+"–"+fmt(r.gu));
+    const on = halaYayinda(r);
+    return '<tr class="hover:bg-sunken dark:hover:bg-sunkend transition-colors">' +
+      '<td class="'+CLS.td+'"><span class="inline-flex items-center gap-2 whitespace-nowrap font-medium">' +
+        '<i class="block w-2 h-2 rounded-full shrink-0" style="background:'+renk(r.s)+'"></i>' +
+        D.sayfalar[r.s] + '</span></td>' +
+      '<td class="'+dim+'">' + (r.t || "—") + '</td><td class="'+dim+'">' + (r.f || "—") + '</td>' +
+      '<td class="'+CLS.td+' font-mono text-[10.5px] text-faint dark:text-faintd whitespace-nowrap">' +
+        trTarih(r.b) + '</td>' +
+      '<td class="'+CLS.td+'"><span class="inline-flex items-center gap-1.5 text-[11.5px] whitespace-nowrap" style="color:'+(on ? c.live : c.faint)+'">' +
+        '<i class="block w-1.5 h-1.5 rounded-full shrink-0" style="background:currentColor"></i>' +
+        (on ? "Yayında" : "Bitti " + trTarih(r.e)) + '</span></td>' +
+      '<td class="'+num+'">'+h+'</td><td class="'+num+'">'+g+'</td>' +
+      '<td class="'+CLS.td+' font-mono text-[10.5px] text-faint dark:text-faintd">' +
+        r.p.map(p => p.slice(0,2).toUpperCase()).join(" · ") + '</td></tr>';
+  }).join("") ||
+  '<tr><td colspan="8" class="py-6 text-center text-muted dark:text-mutedd">Bu aralıkta reklam yok.</td></tr>';
+
+  // Telefonda tablo yatay kaydırma gerektiriyor; onun yerine kart listesi.
+  document.getElementById("tbodyMobil").innerHTML = secili.slice(0, LIMIT).map(r => {
+    const hh = r.hl == null ? "—" : (r.hu == null ? fmt(r.hl)+"+" : fmt(r.hl)+"–"+fmt(r.hu));
+    const gg = r.gl == null ? "—" : (r.gu == null ? fmt(r.gl)+"+" : fmt(r.gl)+"–"+fmt(r.gu));
+    const on = halaYayinda(r);
+    return '<a href="https://www.facebook.com/ads/library/?id=' + r.id + '" ' +
+      'target="_blank" rel="noopener noreferrer" ' +
+      'class="block rounded-lg border border-rule dark:border-ruled bg-ground dark:bg-groundd px-3 py-2.5">' +
+      '<div class="flex items-center justify-between gap-2 mb-1.5">' +
+        '<span class="flex items-center gap-1.5 min-w-0 font-medium text-[12.5px]">' +
+          '<i class="block w-2 h-2 rounded-full shrink-0" style="background:'+renk(r.s)+'"></i>' +
+          '<span class="truncate">'+D.sayfalar[r.s]+'</span></span>' +
+        '<span class="inline-flex items-center gap-1 text-[10.5px] whitespace-nowrap shrink-0" ' +
+          'style="color:'+(on ? c.live : c.faint)+'">' +
+          '<i class="block w-1.5 h-1.5 rounded-full" style="background:currentColor"></i>' +
+          (on ? "Yayında" : "Bitmiş") + '</span></div>' +
+      '<p class="m-0 mb-2 text-[12px] leading-snug text-muted dark:text-mutedd line-clamp-3">' +
+        (r.t || "—") + '</p>' +
+      '<div class="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10.5px] text-faint dark:text-faintd">' +
+        '<span>'+trTarih(r.b)+'</span>' +
+        '<span class="tabnum">'+hh+' ₺</span>' +
+        '<span class="tabnum">'+gg+' gösterim</span>' +
+        '<span>'+r.p.map(x => x.slice(0,2).toUpperCase()).join("·")+'</span>' +
+      '</div></a>';
+  }).join("") ||
+  '<p class="m-0 py-5 text-center text-[12.5px] text-muted dark:text-mutedd">Bu aralıkta reklam yok.</p>';
+
+  document.getElementById("rowcount").textContent = secili.length > LIMIT
+    ? fmt(secili.length) + " reklamdan en yeni " + LIMIT + " tanesi gösteriliyor"
+    : fmt(secili.length) + " reklam gösteriliyor · en yeniden eskiye";
+  document.querySelectorAll("#seg button").forEach((b,i) => {
+    const on = b.dataset.d === state.durum;
+    b.setAttribute("aria-pressed", String(on));
+    b.className = CLS.seg + (i ? " " + CLS.segDiv : "") + (on ? " " + CLS.segOn : "");
+  });
+}
+
+/* ---- çiz ---- */
+function ciz(){
+  galeriLimit = GALERI_ADIM;   // filtre değişince galeri baştan başlasın
+  state.galeriKisi = null;     // ana filtre değişti, galeri odağı sıfırlanır
+  d1.value = state.bas; d2.value = state.son;
+  kdBoyaCiz(); kdEsitle();
+  document.querySelectorAll("#onayar button").forEach(b => {
+    const on = sinirla(b._o.bas) === state.bas && sinirla(b._o.son) === state.son;
+    b.setAttribute("aria-pressed", String(on));
+    b.className = CLS.onay + (on ? " " + CLS.onayOn : "");
+  });
+  document.querySelectorAll("#filters button").forEach(b => {
+    const on = state.secili.has(b._i);
+    b.setAttribute("aria-pressed", String(on));
+    b.className = CLS.chip + " " + (on ? CLS.chipOn : CLS.chipOff);
+    b.querySelector("[data-dot]").style.background = renk(b._i);
+  });
+
+  const rows = filtreli();
+  document.getElementById("stamp").textContent =
+    "Samsun · siyasi reklamlar · " + uzun(state.bas) + " – " + uzun(state.son);
+  document.getElementById("aralikbilgi").textContent =
+    fmt(gunFark(state.bas, state.son)) + " gün · " + fmt(rows.length) + " reklam";
+  document.getElementById("kaynaknot").textContent =
+    "Meta Ad Library API'sinden " + uzun(D.cekim) + " tarihinde çekilmiş gerçek veri. " +
+    "Adayların kendi Facebook sayfalarından verdikleri beyanlı siyasi reklamlar; " +
+    "en çok harcayan " + D.sayfalar.length + " sayfa. Arşivin tamamı: " +
+    uzun(D.ilk) + " – " + uzun(D.son) + ".";
+
+  tiles(rows); cizgi(rows); harcama(rows); durumGrafik(rows); platform(rows);
+  karsilastirma(rows); galeriFiltre(rows); galeri(rows); tablo(rows);
+  lucide.createIcons();
+}
+ciz();
+
+// Ekran döndürme / boyut değişimi: grafiklerin mobil-masaüstü ayarları değişiyor,
+// eşiği geçtiysek yeniden çiz.
+let sonDar = dar(), sonGenislik = innerWidth, zaman;
+addEventListener("resize", () => {
+  clearTimeout(zaman);
+  zaman = setTimeout(() => {
+    // Mobil tarayıcılar kaydırırken adres çubuğunu gizleyip gösterdiği için
+    // resize sürekli tetikleniyor; sadece GENİŞLİK değiştiyse ilgilen.
+    if (innerWidth === sonGenislik) return;
+    sonGenislik = innerWidth;
+    // Sadece mobil/masaüstü eşiği geçildiyse yeniden kur. Zaten çizilmiş bir
+    // ApexCharts örneğinde render() ikinci bir grafik DOM'a ekliyor — çağırma.
+    if (dar() !== sonDar) { sonDar = dar(); ciz(); }
+  }, 220);
+});
+</script>

@@ -78,6 +78,8 @@ alırsın — keşif sekmesi doğrudan yapıştırılabilir JSON bloğu üretir.
 | `rapor.py` | Kişi bazlı rakip raporu — kendi kampanyası vs. adı geçen |
 | `fbtoken.py` | Token ömrünü uzatır ve kalan süreyi gösterir |
 | `gunluk.sh` | Tüm zinciri tek komutta çalıştırır |
+| `panel.html` | Panelin kaynağı (`__DATA__` yer tutuculu şablon) |
+| `panel_yap.py` | Şablon + veri → `index.html` (Pages) ve `panel-artifact.html` |
 | `config.json` | Takip listesi ve anahtar kelimeler |
 
 ## Neden SQLite
@@ -150,14 +152,26 @@ python3 export.py --gun 180      # veri.json üretir (en çok harcayan 5 sayfa)
 `index.html` tek dosyalık, kendi kendine yeten bir sayfadır — veriler ve reklam
 görselleri içine gömülüdür, sunucu gerektirmez. GitHub Pages'te yayınlanır.
 
-Güncellemek için:
+Kaynak `panel.html` (içinde `__DATA__` yer tutucusu), yayın dosyası `index.html`
+ondan üretilir. **`index.html`'i elle düzenleme** — bir sonraki derlemede üzerine yazılır.
 
 ```bash
-./gunluk.sh                                        # veriyi tazele
-python3 export.py --kisiler --sayfa 14 --gorsel    # veri.json üret
-# veri.json'u index.html içindeki `const D = {...};` bloğunun yerine koy
+./gunluk.sh                                      # veriyi tazele (token → çekim → görseller)
+python3 export.py --kisiler --sayfa 14 --gorsel  # veri.json üret
+python3 panel_yap.py                             # panel.html + veri.json -> index.html
 git commit -am "veri güncellendi" && git push
 ```
+
+`panel_yap.py` iki dosya üretir:
+
+| Dosya | Nerede kullanılır |
+|---|---|
+| `index.html` | GitHub Pages — tam HTML belgesi (`<!doctype>`, `<head>`, **viewport**) |
+| `panel-artifact.html` | Claude artifact — sadece gövde, sarmalayıcıyı artifact ekler |
+
+Bu ayrım önemli: artifact sistemi viewport meta etiketini kendisi ekliyor. Aynı
+dosya Pages'e konunca viewport eksik kalıyor ve **mobil tarayıcı sayfayı 980px
+genişlikte varsayıp masaüstü düzenini küçültüyor**. `panel_yap.py` bu farkı kapatır.
 
 ## Veri kaynağı ve sorumluluk
 

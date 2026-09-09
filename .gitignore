@@ -2,6 +2,7 @@
 ads.db
 ads.db-journal
 veri.json
+panel-artifact.html
 gorseller/
 *.log
 __pycache__/
