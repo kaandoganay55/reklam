@@ -48,13 +48,6 @@ tailwind.config = {
     background:var(--kd-ray)}
   .kaydirici .dolgu{position:absolute;top:13px;height:4px;border-radius:2px;
     background:var(--kd-thumb)}
-  .apexcharts-toolbar{gap:2px}
-  .apexcharts-toolbar .apexcharts-menu-icon,.apexcharts-toolbar .apexcharts-reset-icon,
-  .apexcharts-toolbar .apexcharts-zoom-icon,.apexcharts-toolbar .apexcharts-zoomin-icon,
-  .apexcharts-toolbar .apexcharts-zoomout-icon,.apexcharts-toolbar .apexcharts-pan-icon{
-    transform:scale(1.05)}
-  .apexcharts-toolbar svg{fill:currentColor}
-  .apexcharts-selected svg{fill:var(--tt-fg)!important}
   .apexcharts-tooltip{background:var(--tt-bg)!important;border:1px solid var(--tt-br)!important;
     box-shadow:0 6px 20px rgba(0,0,0,.14)!important;border-radius:6px!important;
     font-family:"IBM Plex Sans",sans-serif!important}
@@ -741,29 +734,16 @@ function cizgi(rows){
     (adim > 1 ? " · " + adim + " günde bir örneklendi" : "") +
     (disarida > 0 ? " · en çok reklamı olan " + CIZGI_MAX + " sayfa gösteriliyor, " +
       disarida + " sayfa çizgide yok (çubuklarda ve galeride hepsi var)" : "") + ". " +
-    "Aralığı değiştirmek için alttaki çubuğun kollarını sürükle, ya da grafik üzerinde " +
-    "sürükleyerek yakınlaştır. Seçtiğin aralık tüm panele uygulanır.";
+    "Aralığı değiştirmek için alttaki çubuğun kollarını sürükle ya da ‹ − + › " +
+    "düğmelerini kullan. Seçtiğin aralık tüm panele uygulanır.";
 
   ciz1("#c-line", Object.assign(ortak(), {
     chart: Object.assign(ortak().chart, {
       type:"area", height: dar() ? 230 : 320, stacked:false,
-      // Sürükleyerek yakınlaştır, el aracıyla kaydır. Telefonda parmakla sıkıştır.
-      zoom:{ enabled:true, type:"x", autoScaleYaxis:true },
-      toolbar:{ show:true, offsetY:-6, autoSelected:"zoom",
-        tools:{ download:false, selection:false, zoom:true, zoomin:true,
-                zoomout:true, pan:false, reset:true } },
-      events:{
-        // Yakınlaştırma tarih filtresine yazılır: tüm panel o aralığa odaklanır.
-        zoomed: (ctx, {xaxis}) => {
-          if (!xaxis || xaxis.min == null || xaxis.max == null) return;
-          const i = Math.max(0, Math.round(xaxis.min));
-          const j = Math.min(noktalar.length - 1, Math.round(xaxis.max));
-          if (j - i < 1) return;
-          state.bas = noktalar[i]; state.son = noktalar[j];
-          ciz();
-        },
-        beforeResetZoom: () => { state.bas = D.ilk; state.son = D.son; setTimeout(ciz, 0); },
-      },
+      // Aralık seçimi grafiğin altındaki kaydırıcı ve ‹ − + › düğmeleriyle
+      // yapılıyor; grafiğin üstünde araç çubuğu göstermiyoruz.
+      zoom:{ enabled:false },
+      toolbar:{ show:false },
     }),
     series: seriler,
     colors: secili.map(renk),
