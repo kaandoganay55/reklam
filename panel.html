@@ -83,25 +83,31 @@ tailwind.config = {
       <span class="inline-flex items-center gap-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-wider rounded px-2 py-1 text-accent dark:text-accentd bg-accsoft dark:bg-accsoftd border border-accent dark:border-accentd">
         <i data-lucide="database" class="w-3 h-3"></i>Canlı veri
       </span>
+      <button type="button" id="temaDugme" title="Tema" aria-label="Tema değiştir"></button>
     </div>
   </header>
 
   <section class="rounded-lg bg-surface dark:bg-surfaced border border-rule dark:border-ruled shadow-sm px-3.5 sm:px-5 py-3.5 sm:py-4 flex flex-col gap-3"
            aria-label="Filtreler">
-    <div class="flex flex-wrap items-center gap-x-3 gap-y-2.5">
-      <span class="inline-flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-label text-faint dark:text-faintd">
-        <i data-lucide="calendar-range" class="w-3 h-3"></i>Tarih aralığı
-      </span>
-      <div id="onayar" class="flex flex-wrap gap-1.5"></div>
-      <span class="hidden sm:block w-px h-5 bg-rule dark:bg-ruled"></span>
-      <label class="inline-flex items-center gap-1.5 text-[12px] text-muted dark:text-mutedd">
-        <span class="hidden xs:inline sm:inline">Başlangıç</span><span class="sm:hidden">Baş.</span>
-        <input type="date" id="d1" class="datein">
-      </label>
-      <label class="inline-flex items-center gap-1.5 text-[12px] text-muted dark:text-mutedd">
-        <span>Bitiş</span><input type="date" id="d2" class="datein">
-      </label>
-      <span id="aralikbilgi" class="font-mono text-[11px] text-faint dark:text-faintd"></span>
+    <div class="flex flex-col gap-3 pb-3 border-b border-rule dark:border-ruled">
+      <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <span class="inline-flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-label text-faint dark:text-faintd">
+          <i data-lucide="calendar-range" class="w-3 h-3"></i>Tarih aralığı
+        </span>
+        <span id="aralikbilgi" class="font-mono text-[11.5px] text-muted dark:text-mutedd"></span>
+      </div>
+      <div id="aralikBaslik" class="text-[17px] sm:text-[19px] font-semibold tracking-tight"></div>
+      <div id="onayar" class="flex flex-wrap gap-2"></div>
+      <div class="flex flex-wrap items-center gap-2">
+        <label class="inline-flex items-center gap-2 text-[12px] text-muted dark:text-mutedd">
+          <span class="font-mono text-[10.5px] uppercase tracking-label text-faint dark:text-faintd">Başlangıç</span>
+          <input type="date" id="d1" class="datein">
+        </label>
+        <label class="inline-flex items-center gap-2 text-[12px] text-muted dark:text-mutedd">
+          <span class="font-mono text-[10.5px] uppercase tracking-label text-faint dark:text-faintd">Bitiş</span>
+          <input type="date" id="d2" class="datein">
+        </label>
+      </div>
     </div>
     <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
       <span class="inline-flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-label text-faint dark:text-faintd">
@@ -282,9 +288,9 @@ const CLS = {
   chip:"inline-flex items-center gap-2 font-sans text-[12.5px] pl-2.5 pr-3 py-1 rounded-full cursor-pointer transition-all bg-surface dark:bg-surfaced border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
   chipOn:"border-ink dark:border-inkd shadow-sm",
   chipOff:"border-rulex dark:border-rulexd opacity-50 hover:opacity-80",
-  onay:"font-sans text-xs px-2.5 py-1 rounded-md cursor-pointer transition-colors border bg-surface dark:bg-surfaced border-rulex dark:border-rulexd text-muted dark:text-mutedd hover:text-ink dark:hover:text-inkd focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+  onay:"font-sans text-[12.5px] px-3 py-1.5 rounded-md cursor-pointer transition-colors border bg-surface dark:bg-surfaced border-rulex dark:border-rulexd text-muted dark:text-mutedd hover:text-ink dark:hover:text-inkd focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
   onayOn:"!bg-ink dark:!bg-inkd !text-surface dark:!text-surfaced !border-ink dark:!border-inkd",
-  datein:"font-mono text-[11.5px] rounded-md px-2 py-1 bg-surface dark:bg-surfaced border border-rulex dark:border-rulexd text-ink dark:text-inkd focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent",
+  datein:"font-mono text-[13px] rounded-md px-2.5 py-1.5 bg-ground dark:bg-groundd border border-rulex dark:border-rulexd text-ink dark:text-inkd cursor-pointer hover:border-accent dark:hover:border-accentd transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent",
   td:"py-2.5 pr-3 align-top border-b border-rule dark:border-ruled",
   notehead:"m-0 mb-1 flex items-center gap-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-label text-faint dark:text-faintd",
   notebody:"m-0 text-[12.5px] text-muted dark:text-mutedd max-w-[60ch]",
@@ -371,6 +377,34 @@ const filtreli = () => D.reklamlar.filter(r =>
   state.secili.has(r.s) && r.b <= state.son && bitis(r) >= state.bas);
 
 /* ---- tema ---- */
+/* Tema: Sistem -> Açık -> Koyu döngüsü. Seçim localStorage'da tutulur;
+   erişilemezse (gizli pencere, engelli site verisi) sistem temasına düşer. */
+const TEMA_SIRA = ["sistem", "light", "dark"];
+const TEMA_IKON = { sistem:"monitor-smartphone", light:"sun", dark:"moon" };
+const TEMA_AD   = { sistem:"Sistem", light:"Açık", dark:"Koyu" };
+let temaSecim = "sistem";
+try { temaSecim = localStorage.getItem("tema") || "sistem"; } catch (e) {}
+if (!TEMA_SIRA.includes(temaSecim)) temaSecim = "sistem";
+
+function temaYaz(){
+  if (temaSecim === "sistem") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", temaSecim);
+  try { localStorage.setItem("tema", temaSecim); } catch (e) {}
+}
+temaYaz();
+
+const temaDugme = document.getElementById("temaDugme");
+function temaSerit(){
+  temaDugme.className = CLS.onay;
+  temaDugme.title = "Tema: " + TEMA_AD[temaSecim] + " (değiştirmek için tıkla)";
+  temaDugme.innerHTML = '<i data-lucide="' + TEMA_IKON[temaSecim] +
+    '" class="inline-block w-3.5 h-3.5 mr-1.5 align-middle"></i>' + TEMA_AD[temaSecim];
+}
+temaDugme.onclick = () => {
+  temaSecim = TEMA_SIRA[(TEMA_SIRA.indexOf(temaSecim) + 1) % TEMA_SIRA.length];
+  temaYaz(); temaUygula(); ciz();
+};
+
 function temaUygula(){
   const t = document.documentElement.getAttribute("data-theme");
   document.documentElement.classList.toggle("dark",
@@ -1062,7 +1096,9 @@ function ciz(){
   galeriLimit = GALERI_ADIM;   // filtre değişince galeri baştan başlasın
   state.galeriKisi = null;     // ana filtre değişti, galeri odağı sıfırlanır
   d1.value = state.bas; d2.value = state.son;
-  kdBoyaCiz(); kdEsitle(); kategoriSerit(); bosSerit(); cipSerit();
+  kdBoyaCiz(); kdEsitle(); kategoriSerit(); bosSerit(); cipSerit(); temaSerit();
+  document.getElementById("aralikBaslik").textContent =
+    uzun(state.bas) + "  –  " + uzun(state.son);
   document.querySelectorAll("#onayar button").forEach(b => {
     const on = sinirla(b._o.bas) === state.bas && sinirla(b._o.son) === state.son;
     b.setAttribute("aria-pressed", String(on));

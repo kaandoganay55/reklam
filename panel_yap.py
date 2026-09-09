@@ -42,7 +42,13 @@ KAFA = """<!doctype html>
 <meta property="og:type" content="website">
 <style>
   html{{-webkit-text-size-adjust:100%}}
-  body{{margin:0}}
+  /* Zemin body'ye de yazılıyor: mobilde sayfayı aşağı çekince (rubber-band)
+     ve içerik ekrandan kısa kaldığında tema rengi görünsün. */
+  body{{margin:0;background:#f6f6f3}}
+  @media (prefers-color-scheme:dark){{
+    html:not([data-theme="light"]) body{{background:#121312}}
+  }}
+  html[data-theme="dark"] body{{background:#121312}}
   img{{max-width:100%}}
   [hidden]{{display:none!important}}
 </style>
