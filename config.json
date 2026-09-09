@@ -96,6 +96,38 @@
     {
       "page_id": "409987128856221",
       "label": "Refaettin Karaca"
+    },
+    {
+      "page_id": "156563184691505",
+      "label": "Av.Orhan Kırcalı"
+    },
+    {
+      "page_id": "112689386854074",
+      "label": "MHP Atakum İlçe Başkanlığı"
+    },
+    {
+      "page_id": "107641708151814",
+      "label": "Dr. Mehmet Muş"
+    },
+    {
+      "page_id": "811770315566692",
+      "label": "Çiğdem Karaaslan"
+    },
+    {
+      "page_id": "783280338448314",
+      "label": "Yusuf Ziya Yılmaz"
+    },
+    {
+      "page_id": "198721417704529",
+      "label": "Ersan Aksu"
+    },
+    {
+      "page_id": "101401936375025",
+      "label": "Mehmet Karaman"
+    },
+    {
+      "page_id": "1489520574688277",
+      "label": "Yeni Parti Atakum İlçe Başkanlığı"
     }
   ],
   "_keywords_aciklama": "Sayfa keşfi için reklam metninde aranacak kelimeler. collector.py --discover bunları kullanır.",
@@ -129,7 +161,13 @@
     "Refaettin Karaca",
     "Erhan Usta",
     "Özlem Maraş",
-    "Ender Gür"
+    "Ender Gür",
+    "Orhan Kırcalı",
+    "Mehmet Muş",
+    "Çiğdem Karaaslan",
+    "Yusuf Ziya Yılmaz",
+    "Ersan Aksu",
+    "Mehmet Karaman"
   ],
   "_kurumlar_aciklama": "Parti/kurum aramaları. Kişi isimleri gibi tam ifade aranır; collector.py --kisi bunları da kapsar.",
   "kurumlar": [
@@ -138,7 +176,9 @@
     "İYİ Parti Samsun",
     "AK Parti Samsun",
     "Yeniden Refah Samsun",
-    "Samsun milletvekili"
+    "Samsun milletvekili",
+    "MHP Atakum",
+    "Yeni Parti Atakum"
   ],
   "_haric_aciklama": "İsim çakışmalarında elenecek sayfalar. Tam sayfa adı yazılır; kişi araması aynı ismi taşıyan başka sayfaları da getirdiğinde kullanılır.",
   "haric_sayfalar": [

@@ -58,10 +58,11 @@ def build(db_path: str, gun: int = 0, sadece_kisiler: bool = False,
     df = df[df["bas"].notna()]
 
     if sadece_kisiler:
+        # config.json > pages listesindeki sayfa ID'leri (isim eşleştirme değil:
+        # aynı adı taşıyan başka sayfalar karışıyordu, kurumlar da dışarıda kalıyordu)
         with open(os.path.join(HERE, "config.json"), encoding="utf-8") as fh:
-            kisiler = json.load(fh).get("kisiler", [])
-        anahtarlar = [sadelestir(k) for k in kisiler]
-        df = df[df["sayfa"].map(lambda p: any(a and a in sadelestir(p) for a in anahtarlar))]
+            kimlikler = {str(x["page_id"]) for x in json.load(fh).get("pages", [])}
+        df = df[df["page_id"].astype(str).isin(kimlikler)]
         df = df[~df["sayfa"].isin(haric_liste())]
         if df.empty:
             raise SystemExit("Aday sayfası yok. Önce: python3 collector.py --kisi")

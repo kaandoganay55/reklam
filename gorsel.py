@@ -30,6 +30,8 @@ from rapor import sadelestir, haric_liste
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 KLASOR = os.path.join(HERE, "gorseller")
+# Engelli kreatifler yüzünden eli boş dönmemek için hedefin bu katı kadar aday çekilir
+DERINLIK = 6
 
 
 def token_tazele(url: str, token: str) -> str:
@@ -64,14 +66,34 @@ def kirp(ham: bytes, genislik: int, kalite: int) -> bytes:
 
 
 def aday_sayfalari(conn) -> list:
-    """config.json'daki kişi/kurum isimleriyle eşleşen sayfa adları."""
+    """config.json > pages listesindeki sayfaların adları (ID üzerinden, kesin)."""
     cfg = load_config()
-    anahtarlar = [sadelestir(k) for k in cfg.get("kisiler", [])]
+    kimlikler = [str(x["page_id"]) for x in cfg.get("pages", [])]
+    if not kimlikler:
+        return []
+    yer = ",".join("?" * len(kimlikler))
     adlar = [r[0] for r in conn.execute(
-        "SELECT DISTINCT page_name FROM ads WHERE page_name IS NOT NULL").fetchall()]
+        "SELECT DISTINCT page_name FROM ads WHERE page_name IS NOT NULL "
+        "AND page_id IN (" + yer + ")", kimlikler).fetchall()]
     haric = haric_liste()
-    return [a for a in adlar
-            if a not in haric and any(x and x in sadelestir(a) for x in anahtarlar)]
+    return [a for a in adlar if a not in haric]
+
+
+ENGELLI_YOL = os.path.join(KLASOR, "engelli.json")
+
+
+def engelli_kume() -> set:
+    """Kreatifi Meta tarafından gizlenmiş reklamlar; tekrar denenmesin."""
+    if os.path.exists(ENGELLI_YOL):
+        with open(ENGELLI_YOL, encoding="utf-8") as fh:
+            return set(json.load(fh))
+    return set()
+
+
+def engelli_yaz(kume: set) -> None:
+    os.makedirs(KLASOR, exist_ok=True)
+    with open(ENGELLI_YOL, "w", encoding="utf-8") as fh:
+        json.dump(sorted(kume), fh, indent=1)
 
 
 def secilenler(conn, sayfa: str, adet: int, sadece_kisiler: bool = False) -> list:
@@ -86,12 +108,12 @@ def secilenler(conn, sayfa: str, adet: int, sadece_kisiler: bool = False) -> lis
             "         ROW_NUMBER() OVER (PARTITION BY page_id ORDER BY delivery_start DESC) sira"
             "  FROM ads WHERE snapshot_url IS NOT NULL AND page_name IN (" + yer + ")"
             ") WHERE sira <= ? ORDER BY page_name, delivery_start DESC",
-            adlar + [adet]).fetchall()
+            adlar + [adet * DERINLIK]).fetchall()
     if sayfa:
         return conn.execute(
             "SELECT ad_id, page_name, snapshot_url, delivery_start FROM ads "
             "WHERE snapshot_url IS NOT NULL AND page_name = ? "
-            "ORDER BY delivery_start DESC LIMIT ?", (sayfa, adet)).fetchall()
+            "ORDER BY delivery_start DESC LIMIT ?", (sayfa, adet * DERINLIK)).fetchall()
     # Sayfa başına en yeni N reklam
     return conn.execute(
         "SELECT ad_id, page_name, snapshot_url, delivery_start FROM ("
@@ -157,7 +179,7 @@ def main() -> int:
         with open(indeks_yolu, encoding="utf-8") as fh:
             indeks = json.load(fh)
 
-    print("{} reklam işlenecek.".format(len(hedef)))
+    print("{} aday reklam (sayfa başına hedef: {}).".format(len(hedef), a.adet))
     basarili = atlanan = hatali = 0
 
     UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -179,10 +201,19 @@ def main() -> int:
         ctx.add_init_script("Object.defineProperty(navigator,'webdriver',{get:()=>undefined})")
         pg = ctx.new_page()
 
+        engelli = engelli_kume()
+        basari_sayaci = {}
         for i, (ad_id, sayfa, url, bas) in enumerate(hedef, 1):
             yol = os.path.join(KLASOR, ad_id + ".jpg")
             if os.path.exists(yol) and not a.yenile:
                 atlanan += 1
+                basari_sayaci[sayfa] = basari_sayaci.get(sayfa, 0) + 1
+                continue
+            # Bu sayfa için yeterince görsel toplandıysa gerisini deneme
+            if basari_sayaci.get(sayfa, 0) >= a.adet:
+                continue
+            # Kreatifi gizli olduğu bilinen reklamı tekrar açma
+            if ad_id in engelli and not a.yenile:
                 continue
             try:
                 ham = None
@@ -204,6 +235,7 @@ def main() -> int:
 
                 if ham == "ENGELLI":
                     hatali += 1
+                    engelli.add(ad_id)
                 elif ham is None:
                     hatali += 1
                     print("  {} atlandı: giriş duvarı (3 deneme)".format(ad_id))
@@ -213,6 +245,7 @@ def main() -> int:
                     indeks[ad_id] = {"sayfa": sayfa, "bas": (bas or "")[:10],
                                      "kb": round(os.path.getsize(yol) / 1024, 1)}
                     basarili += 1
+                    basari_sayaci[sayfa] = basari_sayaci.get(sayfa, 0) + 1
             except Exception as exc:
                 hatali += 1
                 print("  {} hata: {}".format(ad_id, str(exc)[:90]))
@@ -222,6 +255,7 @@ def main() -> int:
                 print("  {}/{} ({} indi, {} atlandı, {} hata, {} engel)".format(
                     i, len(hedef), basarili, atlanan, hatali, engel))
         ctx.close(); b.close()
+    engelli_yaz(engelli)
 
     if engel:
         print("\n{} kez giriş duvarına takıldı (yeniden denendi). "

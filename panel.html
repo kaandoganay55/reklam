@@ -291,25 +291,23 @@ document.querySelectorAll(".notebody").forEach(e => e.className = CLS.notebody);
 document.querySelectorAll(".ncode").forEach(e => e.className = CLS.ncode);
 document.querySelectorAll(".datein").forEach(e => e.className = CLS.datein);
 
-// 14 slot: normal görüşte komşu çiftlerin en kötüsü ΔE 19.7 (eşik 15) — hepsi net
-// ayrılıyor. Renk körlüğü eşiğini (ΔE 6) 8 renkten sonra hiçbir dizilim tutturamıyor;
-// bu yüzden her grafikte sayfa adı da yazılı, renk tek ayırt edici değil.
-// 14 slot, OKLab uzayında en yakın çift maksimize edilerek seçildi:
-// en zor çift ΔE 12.9 (light) / 12.5 (dark). Resmi eşik 15 ama 14 renkte hiçbir
-// dizilim onu tutturamıyor — sınır 11 renk. Telafi: her grafikte, çipte ve kartta
-// sayfa adı yazılı, renk tek ayırt edici değil.
-// 14 slot. Sıralama komşu farkını maksimize edecek şekilde optimize edildi:
-// yan yana gelen iki renk arasında en kötü fark ΔE 23.9. Tüm çiftler arasında
-// en yakını ΔE 12.5 (resmi eşik 15; 14 renkte hiçbir küme onu tutturamıyor,
-// sınır 11 renk). Telafi: her yerde sayfa adı yazılı, renk tek ayırt edici değil.
+// 16 slot. OKLab'da en yakın çift maksimize edilerek seçildi; koyu tonlar aynı
+// hue'yu koruyup (sapma 0.5°) koyu zemine göre yeniden basamaklandırıldı, hepsi
+// zemine karşı en az 3:1 kontrastta. En yakın çift ΔE 11.6 (açık) / 11.5 (koyu),
+// yan yana gelen çiftlerde en kötü ΔE 23.7. Resmi eşik 15'i 11 renkten sonra
+// hiçbir küme tutturamıyor; telafi olarak her yerde sayfa adı yazılı.
 const PAL = {
-  light:{ seri:["#0573aa","#d65bd5","#f95801","#2b97ff","#036a34","#413cc9","#bd3403",
-                "#18b42d","#8b3655","#0cad98","#dd3172","#875df0","#9a7d0b","#8316a4"],
+  light:{ seri:["#a183d4","#bd3403","#0573aa","#dd3172",
+                "#413cc9","#9a7d0b","#2b97ff","#8b3655",
+                "#18b42d","#7b58a4","#036a34","#875df0",
+                "#f95801","#8316a4","#0cad98","#d65bd5"],
     nötr:["#8a8983","#a5a49d","#6f6e69"],
     rule:"#e2e3de", faint:"#6f737b", ink:"#14161a", muted:"#4b5058",
     surface:"#ffffff", sunken:"#f0f0ec", live:"#0ca30c" },
-  dark:{ seri:["#1987bb","#fd6cd4","#a5720f","#265adf","#137d4a","#84a9f7","#fd8706",
-               "#15cd55","#9e4766","#00aa95","#f74865","#a04edb","#b2b04f","#ba76b7"],
+  dark:{ seri:["#8c75b5","#f45121","#40adf1","#c21d60",
+               "#525ac7","#b8960b","#0884ea","#c67c92",
+               "#2abe38","#bea2e3","#39794d","#7f2fff",
+               "#b93f00","#c432f2","#55b7a5","#9e419d"],
     nötr:["#7a7a74","#94938c","#63625d"],
     rule:"#2c2d29", faint:"#9b9a90", ink:"#f2f2ee", muted:"#c3c2b7",
     surface:"#1a1a19", sunken:"#202020", live:"#3ab63a" },
