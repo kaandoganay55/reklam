@@ -179,6 +179,11 @@
       "page_id": "183187802337696",
       "label": "CHP Samsun Milletvekili MURAT ÇAN",
       "kategori": "vekil"
+    },
+    {
+      "page_id": "225676360636575",
+      "label": "Yeniden Hasan Togar",
+      "kategori": "belirsiz"
     }
   ],
   "_keywords_aciklama": "Sayfa keşfi için reklam metninde aranacak kelimeler. collector.py --discover bunları kullanır.",
